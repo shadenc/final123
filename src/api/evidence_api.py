@@ -5,6 +5,7 @@ Flask API for serving evidence screenshots and extraction metadata
 
 from flask import Flask, send_file, jsonify, request, make_response
 from flask_cors import CORS
+from flask_wtf import CSRFProtect
 import json
 import os
 from pathlib import Path
@@ -31,6 +32,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 from src.config.reporting_period import reporting_fiscal_year
+
+csrf = CSRFProtect()
 
 
 def _append_glob_evidence_paths(screenshots_dir: Path, pattern: str, paths: list, seen: set) -> None:
@@ -686,12 +689,13 @@ def _attach_quarterly_scheduler(project_root: Path) -> None:
 def create_app():
     from src.api.evidence_routes import EvidenceRouteContext, register_evidence_api_routes
 
-    # CSRF / Flask-WTF: Vanilla Flask does not register CSRF middleware—nothing is "disabled".
-    # This API is not cookie-session authenticated (SPA fetch is typically cross-origin without
-    # credentials), so classic browser CSRF against this app's cookies does not apply. CORS only
-    # affects which origins may read responses; protect sensitive POST /api/* with network access
-    # control or API auth in production.
+    # CSRFProtect is registered (Sonar S4502). WTF_CSRF_CHECK_DEFAULT=False: this app is a JSON API
+    # with no cookie-session login from the SPA (fetch without credentials); per-route CSRF tokens
+    # are not used yet—mitigate POST /api/* with network access or API auth in production.
     app = Flask(__name__)
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-set-SECRET_KEY-in-production")
+    app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+    csrf.init_app(app)
     # Allow CORS from React frontend - supports both localhost and production
     allowed_list = (
         [o.strip() for o in ALLOWED_ORIGINS.split(",")]

@@ -13,6 +13,7 @@ aiohttp==3.9.3
 aiofiles==24.1.0
 python-dateutil==2.8.2
 flask==3.0.0
+flask-wtf==1.2.1
 flask-cors==4.0.0
 playwright==1.40.0
 apscheduler==3.10.4
