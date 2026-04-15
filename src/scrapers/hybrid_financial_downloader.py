@@ -386,9 +386,9 @@ def _filter_reports_for_fiscal_year(
 ) -> List[Tuple[str, int, str]]:
     filtered: List[Tuple[str, int, str]] = []
     for stype, year, pdf_url in found_reports:
-        if year == target_year and stype in ["q1", "q2", "q3"]:
-            filtered.append((stype, year, pdf_url))
-        elif year == target_year - 1 and stype == "annual":
+        if (year == target_year and stype in ["q1", "q2", "q3"]) or (
+            year == target_year - 1 and stype == "annual"
+        ):
             filtered.append((stype, year, pdf_url))
     print(
         f"[DEBUG] Will download for {symbol}: "
@@ -616,7 +616,6 @@ async def download_all_financial_statements():
     """Download the most recent financial statements for all companies."""
     # Get company symbols from JSON file
     companies = get_company_symbols_from_json()
-    # companies = ["2030"]  # Test with a single company
     if not companies:
         print("❌ No company symbols found. Please run the ownership scraper first.")
         return
@@ -716,22 +715,4 @@ async def download_all_financial_statements():
         await teardown_playwright_bundle(playwright, browser)
 
 if __name__ == "__main__":
-    # Uncomment to download all reports for all companies
     asyncio.run(download_all_financial_statements())
-    
-    # Comment out the test function when running all companies
-    # async def test_single_company():
-    #     # Test with the company we know has data
-    #     symbol = "2030"
-    #     print(f"🧪 Testing with {symbol} to verify new filtering...")
-    #     
-    #     playwright, browser, context = await setup_stealth_browser()
-    #     try:
-    #         success = await process_company_with_retry(browser, symbol)
-    #         print(f"Test result: {'✅ SUCCESS' if success else '❌ FAILED'}")
-    #     finally:
-    #             await browser.close()
-    #             await playwright.stop()
-    # 
-    # # Run the test
-    # asyncio.run(test_single_company()) 

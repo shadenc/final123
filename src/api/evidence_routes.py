@@ -58,7 +58,7 @@ class EvidenceRouteContext:
 
 
 def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
-        @app.route('/api/reporting_config')
+        @app.route('/api/reporting_config', methods=['GET'])
         def reporting_config():
             """Dashboard + pipeline fiscal focus (aligns UI labels with PDF/evidence years)."""
             y = reporting_fiscal_year()
@@ -67,7 +67,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 "prior_annual_year": y - 1,
             })
 
-        @app.route('/api/evidence/<company_symbol>.png')
+        @app.route('/api/evidence/<company_symbol>.png', methods=['GET'])
         def get_evidence_screenshot(company_symbol):
             """
             Serve evidence screenshot for a specific company and quarter
@@ -88,7 +88,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 logger.exception("Error serving evidence screenshot")
                 return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
-        @app.route('/api/extractions')
+        @app.route('/api/extractions', methods=['GET'])
         def get_extractions():
             """
             Get all extraction results with evidence information
@@ -127,7 +127,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 logger.error(f"Error serving extractions: {e}")
                 return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
-        @app.route('/api/extractions/<company_symbol>')
+        @app.route('/api/extractions/<company_symbol>', methods=['GET'])
         def get_extraction_by_company(company_symbol):
             """
             Get extraction result for a specific company and quarter
@@ -166,7 +166,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 logger.error(f"Error serving extraction for {company_symbol}: {e}")
                 return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
-        @app.route('/api/evidence/metadata')
+        @app.route('/api/evidence/metadata', methods=['GET'])
         def get_evidence_metadata():
             """
             Get metadata about all available evidence screenshots
@@ -187,7 +187,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 logger.error(f"Error serving evidence metadata: {e}")
                 return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
-        @app.route('/api/evidence/<company_symbol>')
+        @app.route('/api/evidence/<company_symbol>', methods=['GET'])
         def get_evidence(company_symbol):
             """
             Get evidence data for a specific company
@@ -237,7 +237,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 logger.error(f"Error serving evidence for {company_symbol}: {e}")
                 return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
-        @app.route('/api/retained_earnings_flow.csv')
+        @app.route('/api/retained_earnings_flow.csv', methods=['GET'])
         def get_retained_earnings_flow_csv():
             """Get retained earnings flow data as CSV."""
             try:
@@ -261,7 +261,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 print(f"Error serving CSV: {e}")
                 return f"Error: {str(e)}", 500
 
-        @app.route('/api/reinvested_earnings_results.csv')
+        @app.route('/api/reinvested_earnings_results.csv', methods=['GET'])
         def get_reinvested_earnings_results():
             """
             Serve reinvested earnings results as CSV (legacy endpoint)
@@ -355,7 +355,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                     "message": f"Refresh failed: {str(e)}"
                 }), 500
 
-        @app.route('/api/health')
+        @app.route('/api/health', methods=['GET'])
         def health_check():
             """
             Health check endpoint
@@ -640,7 +640,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
 
                 # Save the updated CSV
                 df.to_csv(csv_path, index=False, encoding='utf-8')
-                logger.info(f"CSV updated and saved successfully")
+                logger.info("CSV updated and saved successfully")
 
                 # Log the correction
                 corrections_log = ctx.root / "data/results/corrections_log.json"
@@ -971,7 +971,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                     "message": f"Failed to update ownership data: {str(e)}"
                 }), 500
 
-        @app.route('/api/ownership_snapshots')
+        @app.route('/api/ownership_snapshots', methods=['GET'])
         def list_ownership_snapshots():
             """
             List all archived quarterly Excel files for user download
@@ -1006,7 +1006,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
 
 
 
-        @app.route('/snapshots/<year_q>.xlsx')
+        @app.route('/snapshots/<year_q>.xlsx', methods=['GET'])
         def download_snapshot(year_q):
             """
             Download a specific archived Excel file by year and quarter
@@ -1019,7 +1019,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 return jsonify({'error': MSG_FILE_NOT_FOUND}), 404
             return send_file(str(file_path), as_attachment=True, download_name=f'ownership_{year_q}.xlsx', mimetype=MIME_XLSX)
 
-        @app.route('/api/user_exports')
+        @app.route('/api/user_exports', methods=['GET'])
         def list_user_exports():
             """
             List all user-triggered Excel exports in output/excel/
@@ -1038,7 +1038,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 })
             return jsonify(result)
 
-        @app.route('/user_exports/<filename>')
+        @app.route('/user_exports/<filename>', methods=['GET'])
         def download_user_export(filename):
             """
             Download a user-triggered Excel export by filename
@@ -1066,7 +1066,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
 
-        @app.route('/api/net-profit')
+        @app.route('/api/net-profit', methods=['GET'])
         def get_net_profit():
             """Get quarterly net profit data for all companies (empty object if file not created yet)."""
             try:
@@ -1090,7 +1090,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 print(f"Error serving net profit data: {e}")
                 return jsonify({'error': str(e)}), 500
 
-        @app.route('/api/evidence/<company_symbol>/quarter_mapping')
+        @app.route('/api/evidence/<company_symbol>/quarter_mapping', methods=['GET'])
         def get_quarter_evidence_mapping(company_symbol):
             """
             Get evidence mapping for a specific company showing which screenshots correspond to which quarter references
@@ -1194,7 +1194,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 logger.error(f"Error getting quarter mapping for {company_symbol}: {e}")
                 return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
-        @app.route('/api/evidence/<company_symbol>/previous_quarter')
+        @app.route('/api/evidence/<company_symbol>/previous_quarter', methods=['GET'])
         def get_previous_quarter_evidence(company_symbol):
             """
             Get evidence for the previous quarter reference (especially useful for Q1 where previous = Annual)
@@ -1205,8 +1205,7 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
 
                 # Determine what the "previous quarter" should be
                 previous_quarter_pattern = ""
-                if quarter == "Q1_2025":
-                    # Q1 2025 previous quarter is Annual 2024
+                if quarter in ("Q1_2025", "Annual_2024"):
                     previous_quarter_pattern = f"{company_symbol}_*_annual_2024_evidence.png"
                     previous_quarter_description = "Annual 2024 (الأرباح المبقاة للربع السابق)"
                 elif quarter == "Q2_2025":
@@ -1218,10 +1217,6 @@ def register_evidence_api_routes(app: Flask, ctx: EvidenceRouteContext) -> None:
                 elif quarter == "Q4_2025":
                     previous_quarter_pattern = f"{company_symbol}_*_q3_2025_evidence.png"
                     previous_quarter_description = "Q3 2025"
-                elif quarter == "Annual_2024":
-                    # Direct request for Annual 2024 evidence
-                    previous_quarter_pattern = f"{company_symbol}_*_annual_2024_evidence.png"
-                    previous_quarter_description = "Annual 2024 (الأرباح المبقاة للربع السابق)"
                 else:
                     # Fallback
                     previous_quarter_pattern = f"{company_symbol}_*_evidence.png"

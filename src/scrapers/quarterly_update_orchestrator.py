@@ -351,7 +351,7 @@ class QuarterlyUpdateOrchestrator:
         
         logger.info(f"💾 Updated net profit data for {symbol}")
     
-    async def run_quarterly_update(self, force_full_update: bool = False) -> Dict:
+    async def run_quarterly_update(self) -> Dict:
         """Run the complete quarterly update process."""
         logger.info("🚀 Starting Quarterly Update Process")
         logger.info(f"📅 Current: {self.current_year} {self.current_quarter}")

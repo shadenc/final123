@@ -709,8 +709,8 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 (PROJECT_ROOT / "data/pdfs").mkdir(parents=True, exist_ok=True)
 
 if __name__ == '__main__':
-    print(f"Starting Evidence API server...")
+    print("Starting Evidence API server...")
     print(f"Screenshots directory: {PROJECT_ROOT / SCREENSHOTS_RELPATH}")
-    print(f"API will be available at: http://localhost:5003")
+    print("API will be available at: http://localhost:5003")
     
     app.run(debug=True, host='0.0.0.0', port=5003) 

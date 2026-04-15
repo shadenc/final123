@@ -95,7 +95,7 @@ class EvidenceScreenshotGenerator:
             logger.exception("Error searching PDF %s", Path(pdf_path).name)
             return None
     
-    def generate_highlight_screenshot(self, pdf_path: str, search_value: str, company_symbol: str) -> Optional[str]:
+    def generate_highlight_screenshot(self, pdf_path: str, search_value: str, _company_symbol: str) -> Optional[str]:
         """
         Generate a highlighted screenshot showing where the value was found
         Returns the path to the generated screenshot or None
@@ -210,9 +210,9 @@ def main():
     generator = EvidenceScreenshotGenerator()
     screenshots = generator.generate_all_evidence_screenshots()
     
-    print(f"\n{'='*50}")
-    print(f"EVIDENCE SCREENSHOT GENERATION SUMMARY")
-    print(f"{'='*50}")
+    print("\n" + "=" * 50)
+    print("EVIDENCE SCREENSHOT GENERATION SUMMARY")
+    print("=" * 50)
     print(f"Generated screenshots: {len(screenshots)}")
     
     if screenshots:
@@ -221,8 +221,8 @@ def main():
             name = Path(screenshot["screenshot_path"]).name
             print(f"  {name}")
     
-    print(f"\nScreenshots saved to: output/screenshots/")
-    print(f"Metadata saved to: output/screenshots/evidence_metadata.json")
+    print("\nScreenshots saved to: output/screenshots/")
+    print("Metadata saved to: output/screenshots/evidence_metadata.json")
 
 if __name__ == "__main__":
     main() 

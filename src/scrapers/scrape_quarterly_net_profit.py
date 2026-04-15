@@ -65,7 +65,7 @@ async def _find_statement_of_income_table(tables: List[Any]) -> Optional[Any]:
         except Exception as e:
             print(f"⚠️  Error reading table {i}: {e}")
 
-    print(f"🔍 Looking for any table with quarterly dates...")
+    print("🔍 Looking for any table with quarterly dates...")
     for i, table in enumerate(tables):
         try:
             table_text = await table.text_content()
@@ -98,7 +98,7 @@ async def _collect_quarterly_date_strings(statement_of_income_table: Any) -> Lis
     if quarterly_dates:
         return quarterly_dates
 
-    print(f"❌ No quarterly dates found in headers, checking table body...")
+    print("❌ No quarterly dates found in headers, checking table body...")
     body_rows = await statement_of_income_table.query_selector_all("tbody tr")
     if not body_rows:
         return quarterly_dates
@@ -628,7 +628,7 @@ async def scrape_all_companies_net_profit():
                 await asyncio.sleep(delay)
 
         print(f"\n{'='*60}")
-        print(f"📊 SCRAPING SUMMARY")
+        print("📊 SCRAPING SUMMARY")
         print(f"{'='*60}")
         print(f"✅ Successful: {success_count}")
         print(f"❌ Failed: {failed_count}")

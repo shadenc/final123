@@ -28,7 +28,7 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 class EvidenceScreenshotGenerator:
     """Simple screenshot generator for evidence"""
     
-    def generate_highlight_screenshot(self, pdf_path: str, search_value: str, company_symbol: str) -> Optional[str]:
+    def generate_highlight_screenshot(self, pdf_path: str, search_value: str, _company_symbol: str) -> Optional[str]:
         """Generate screenshot highlighting the found value and unit text on the same page"""
         try:
             import fitz
@@ -92,7 +92,7 @@ class EvidenceScreenshotGenerator:
             logger.error(f"Highlighting error: {e}")
             return page
 
-    def _highlight_units_on_page(self, page, page_text: str) -> None:
+    def _highlight_units_on_page(self, page, _page_text: str) -> None:
         """Attempt to find and highlight unit declaration text on the page.
         Draw a second rectangle (green) around the first matching unit phrase.
         """
@@ -637,14 +637,14 @@ def _process_one_pdf_extraction(
     print(f"  ✓ Found: {result['value']} (Year: {result['year']})")
     print(f"  ✓ Method: {result['method']}")
     try:
-        print(f"  📸 Generating evidence screenshot...")
+        print("  📸 Generating evidence screenshot...")
         screenshot_path = evidence_generator.generate_highlight_screenshot(
             str(pdf_file), result['value'], company_symbol
         )
         if screenshot_path:
             print(f"  ✓ Evidence screenshot saved: {screenshot_path}")
         else:
-            print(f"  ⚠️ Failed to generate evidence screenshot")
+            print("  ⚠️ Failed to generate evidence screenshot")
     except Exception as e:
         print(f"  ⚠️ Error generating evidence screenshot: {e}")
     return result, 1
@@ -693,14 +693,14 @@ def main():
     save_to_database(results)
     
     # Print summary
-    print(f"\n{'='*50}")
-    print(f"EXTRACTION SUMMARY")
-    print(f"{'='*50}")
+    print("\n" + "=" * 50)
+    print("EXTRACTION SUMMARY")
+    print("=" * 50)
     print(f"Total PDFs processed: {len(pdf_files)}")
     print(f"Successful extractions: {successful_extractions}")
     print(f"Success rate: {successful_extractions/len(pdf_files)*100:.1f}%")
     print(f"Results saved to: {output_file}")
-    print(f"Results also saved to database: data/financial_analysis.db")
+    print("Results also saved to database: data/financial_analysis.db")
     
 if __name__ == "__main__":
     main() 

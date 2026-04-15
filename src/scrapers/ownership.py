@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 SELECTOR_OWNERSHIP_TABLE_ROWS = "table tbody tr"
 
-c# Extract entirely in the browser — iterating hundreds of ElementHandles triggers
+# Extract entirely in the browser — iterating hundreds of ElementHandles triggers
 # "The object has been collected to prevent unbounded heap growth" in Playwright Python.
 _OWNERSHIP_TABLE_EVAL = """(selector) => {
   const rows = Array.from(document.querySelectorAll(selector));

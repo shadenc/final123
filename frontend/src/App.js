@@ -2164,20 +2164,29 @@ function App() {
           </Box>
         </Box>
         <List>
-          {userExportsLoading ? (
-            <ListItem sx={{ justifyContent: 'center' }}><CircularProgress size={22} sx={{ color: '#1e6641' }} /></ListItem>
-          ) : userExportsError ? (
-            <ListItem><Alert severity="error">{userExportsError}</Alert></ListItem>
-          ) : userExports.length === 0 ? (
+          {(() => {
+            if (userExportsLoading) {
+              return (
+                <ListItem sx={{ justifyContent: 'center' }}><CircularProgress size={22} sx={{ color: '#1e6641' }} /></ListItem>
+              );
+            }
+            if (userExportsError) {
+              return (
+                <ListItem><Alert severity="error">{userExportsError}</Alert></ListItem>
+              );
+            }
+            if (userExports.length === 0) {
+              return (
             <ListItem sx={{ justifyContent: 'center', alignItems: 'center', minHeight: 80, width: '100%' }}>
               <Typography sx={{ color: '#b0b7be', fontSize: 17, textAlign: 'center', width: '100%' }}>
                 لا توجد ملفات محفوظة بعد
               </Typography>
             </ListItem>
-          ) : (
-            userExports.map((file, idx) => (
+              );
+            }
+            return userExports.map((file) => (
               <ListItem
-                key={idx}
+                key={file.filename || file.download_url}
                 tabIndex={0}
                 sx={{
                   pl: 3, pr: 3, py: 2.2,
@@ -2265,8 +2274,8 @@ function App() {
                   </IconButton>
                 </Tooltip>
               </ListItem>
-            ))
-          )}
+            ));
+          })()}
         </List>
         {/* Divider between sections */}
         <Box sx={{ mt: 2, pb: 0, px: 0 }}>
@@ -2814,17 +2823,29 @@ function App() {
         
         {/* Quarterly Archives List */}
         <List>
-          {snapshotsLoading ? (
-            <ListItem sx={{ justifyContent: 'center' }}><CircularProgress size={22} sx={{ color: '#1e6641' }} /></ListItem>
-          ) : snapshotsError ? (
-            <ListItem><Alert severity="error">{snapshotsError}</Alert></ListItem>
-          ) : snapshots.length === 0 ? (
-            <ListItem sx={{ justifyContent: 'center', color: '#888' }}>لا توجد ملفات محفوظة بعد</ListItem>
-          ) : (
-            snapshots.map((snap, idx) => (
-              <ListItem key={idx} sx={{ pl: 2, pr: 2, py: 1, borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center' }}>
+          {(() => {
+            if (snapshotsLoading) {
+              return (
+                <ListItem sx={{ justifyContent: 'center' }}><CircularProgress size={22} sx={{ color: '#1e6641' }} /></ListItem>
+              );
+            }
+            if (snapshotsError) {
+              return (
+                <ListItem><Alert severity="error">{snapshotsError}</Alert></ListItem>
+              );
+            }
+            if (snapshots.length === 0) {
+              return (
+                <ListItem sx={{ justifyContent: 'center', color: '#888' }}>لا توجد ملفات محفوظة بعد</ListItem>
+              );
+            }
+            return snapshots.map((snap) => (
+              <ListItem
+                key={snap.download_url || `${snap.year}-${snap.quarter}-${snap.snapshot_date}`}
+                sx={{ pl: 2, pr: 2, py: 1, borderBottom: '1px solid #e0e0e0', display: 'flex', alignItems: 'center' }}
+              >
                 <Typography sx={{ fontWeight: 500, color: '#1e6641', flexGrow: 1, fontSize: 16 }}>
-                  {`${snap.year} ${snap.quarter.replace('Q', 'Q')} — ${snap.snapshot_date}`}
+                  {`${snap.year} ${snap.quarter} — ${snap.snapshot_date}`}
                 </Typography>
                 <Tooltip title={`تاريخ الاستخراج: ${snap.snapshot_date}`} arrow>
                   <Button
@@ -2841,8 +2862,8 @@ function App() {
                   </Button>
                 </Tooltip>
               </ListItem>
-            ))
-          )}
+            ));
+          })()}
         </List>
       </Drawer>
     </Box>

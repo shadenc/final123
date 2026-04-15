@@ -452,7 +452,7 @@ def main():
         ownership_df = _normalize_ownership_symbols(_read_ownership_dataframe())
         final_results = _merge_flow_with_ownership(flow_df, ownership_df)
         print(f"✅ Calculated flows for {len(final_results)} company-quarters")
-        print(f"✅ Added foreign investor flow calculations")
+        print("✅ Added foreign investor flow calculations")
         _save_flow_outputs(final_results)
         _print_sample_flow_results(final_results)
     except FileNotFoundError:
