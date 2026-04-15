@@ -1,0 +1,20 @@
+company_symbol,company_name,foreign_ownership,max_allowed,investor_limit,retained_earnings,reinvested_earnings,year,pdf_filename,error
+4030,البحري*,0.0%,0.01%,0.0%,,,,4030_q1_2025.pdf,No retained earnings found using any method
+2222,أرامكو السعودية,49.0%,0.63%,0.0%,1356603.0,0.0,2026.0,2222_q1_2025.pdf,
+4200,الدريس,49.0%,11.04%,0.0%,,,,4200_q1_2025.pdf,No retained earnings found using any method
+2382,أديس,49.0%,7.45%,0.0%,2446821.0,0.0,2025.0,2382_annual_2024.pdf,
+2030,المصافي,49.0%,3.12%,0.0%,163856674.0,0.0,2025.0,2030_q1_2025.pdf,
+2382,أديس,49.0%,7.45%,0.0%,2587373.0,0.0,2026.0,2382_q2_2025.pdf,
+2380,بترو رابغ,49.0%,2.31%,37.5%,,,,2380_q1_2025.pdf,No retained earnings found using any method
+2381,الحفر العربية,49.0%,3.94%,34.3%,,,,2381_q2_2025.pdf,No retained earnings found using any method
+2222,أرامكو السعودية,49.0%,0.63%,0.0%,1342442.0,0.0,2026.0,2222_annual_2024.pdf,
+4200,الدريس,49.0%,11.04%,0.0%,,,2024.0,4200_annual_2024.pdf,No retained earnings found using any method
+2382,أديس,49.0%,7.45%,0.0%,2398770.0,0.0,2025.0,2382_q1_2025.pdf,
+2381,الحفر العربية,49.0%,3.94%,34.3%,,,2024.0,2381_annual_2024.pdf,No retained earnings found using any method
+2030,المصافي,49.0%,3.12%,0.0%,161776167.0,0.0,2025.0,2030_annual_2024.pdf,
+4200,الدريس,49.0%,11.04%,0.0%,,,,4200_q2_2025.pdf,No retained earnings found using any method
+4030,البحري*,0.0%,0.01%,0.0%,,,,4030_q2_2025.pdf,No retained earnings found using any method
+2380,بترو رابغ,49.0%,2.31%,37.5%,,,2024.0,2380_annual_2024.pdf,No retained earnings found using any method
+4030,البحري*,0.0%,0.01%,0.0%,,,2024.0,4030_annual_2024.pdf,No retained earnings found using any method
+2380,بترو رابغ,49.0%,2.31%,37.5%,,,,2380_q2_2025.pdf,No retained earnings found using any method
+2381,الحفر العربية,49.0%,3.94%,34.3%,,,,2381_q1_2025.pdf,No retained earnings found using any method
