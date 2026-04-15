@@ -570,7 +570,6 @@ def create_app():
     RESULTS_FILE = PROJECT_ROOT / RESULTS_JSON_RELPATH
     METADATA_FILE = SCREENSHOTS_DIR / "evidence_metadata.json"
     CSV_FILE = PROJECT_ROOT / REINVESTED_CSV_RELPATH
-    FLOW_CSV_FILE = PROJECT_ROOT / FLOW_CSV_RELPATH
 
     @app.route('/api/reporting_config')
     def reporting_config():
@@ -598,7 +597,7 @@ def create_app():
             
             return send_file(str(screenshot_path), mimetype='image/png')
             
-        except Exception as e:
+        except Exception:
             logger.exception("Error serving evidence screenshot")
             return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
@@ -743,7 +742,6 @@ def create_app():
             
             # Add screenshot URL if available
             if evidence_data:
-                screenshot_filename = f"{company_symbol}_evidence.png"
                 response['screenshot_url'] = f"/api/evidence/{company_symbol}.png"
             
             return jsonify(response)

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+import PropTypes from "prop-types";
 import { DataGrid } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -89,10 +90,10 @@ function isPresentMetricValue(v) {
 function pickNewestQuarterlyValueByPrefix(quarterlyMap, quarterLabel) {
   const prefix = `${quarterLabel} `;
   let bestYear = -Infinity;
-  let bestVal = undefined;
+  let bestVal;
   for (const k of Object.keys(quarterlyMap)) {
     if (!k.startsWith(prefix)) continue;
-    const yr = parseInt(k.slice(prefix.length).trim(), 10);
+    const yr = Number.parseInt(k.slice(prefix.length).trim(), 10);
     if (Number.isNaN(yr)) continue;
     if (yr >= bestYear) {
       bestYear = yr;
@@ -113,7 +114,7 @@ function lookupQuarterlyNetProfitValue(quarterlyMap, quarterFilter, focusYear) {
   if (!q) return undefined;
   const candidates = [`${q} ${focusYear}`, `${q} ${focusYear + 1}`, `${q} ${focusYear - 1}`];
   for (const k of candidates) {
-    if (!Object.prototype.hasOwnProperty.call(quarterlyMap, k)) continue;
+    if (!Object.hasOwn(quarterlyMap, k)) continue;
     const v = quarterlyMap[k];
     if (isPresentMetricValue(v)) return v;
   }
@@ -240,7 +241,7 @@ function SarSignedAmountTypography({ raw }) {
   if (isMetricCellMissing(raw)) {
     return 'لايوجد';
   }
-  const numValue = parseFloat(raw);
+  const numValue = Number.parseFloat(raw);
   if (Number.isNaN(numValue)) {
     return raw;
   }
@@ -260,21 +261,32 @@ function EvidenceVisibilityButton({ onOpenEvidence, sx }) {
       <IconButton
         size="small"
         onClick={onOpenEvidence}
-        sx={{
-          color: '#1e6641',
-          '&:hover': { bgcolor: '#e8f5ee' },
-          padding: '8px',
-          minWidth: '40px',
-          width: '40px',
-          height: '40px',
-          ...(sx || {}),
-        }}
+        sx={[
+          {
+            color: '#1e6641',
+            '&:hover': { bgcolor: '#e8f5ee' },
+            padding: '8px',
+            minWidth: '40px',
+            width: '40px',
+            height: '40px',
+          },
+          ...(sx ? [sx] : []),
+        ]}
       >
         <VisibilityIcon sx={{ fontSize: '16px' }} />
       </IconButton>
     </Tooltip>
   );
 }
+
+SarSignedAmountTypography.propTypes = {
+  raw: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+};
+
+EvidenceVisibilityButton.propTypes = {
+  onOpenEvidence: PropTypes.func.isRequired,
+  sx: PropTypes.oneOfType([PropTypes.object, PropTypes.array]),
+};
 
 /**
  * DataGrid column definitions (module scope lowers App() cognitive complexity / Sonar).
@@ -288,7 +300,7 @@ function buildDashboardColumns(quarterFilter, yearFocus, netProfitData, fetchEvi
     if (isMetricCellMissing(value)) {
       return 'لايوجد';
     }
-    const numValue = parseFloat(value);
+    const numValue = Number.parseFloat(value);
     if (Number.isNaN(numValue)) {
       return value;
     }
@@ -310,7 +322,7 @@ function buildDashboardColumns(quarterFilter, yearFocus, netProfitData, fetchEvi
     if (isMetricCellMissing(value)) {
       return 'لايوجد';
     }
-    const numValue = parseFloat(value);
+    const numValue = Number.parseFloat(value);
     if (Number.isNaN(numValue)) {
       return value;
     }
@@ -329,7 +341,7 @@ function buildDashboardColumns(quarterFilter, yearFocus, netProfitData, fetchEvi
 
   const renderNetProfitColumn = (params) => {
     const companySymbol = params.row.company_symbol ?? params.row.symbol;
-    const key = companySymbol != null ? String(companySymbol).trim() : '';
+    const key = companySymbol == null ? '' : String(companySymbol).trim();
     const companyNetProfit = key ? netProfitData[key] : undefined;
 
     if (companyNetProfit && companyNetProfit.quarterly_net_profit) {
@@ -432,7 +444,14 @@ const EvidenceModal = ({ open, onClose, evidenceData, loading, error, onDataUpda
   const [correctionValue, setCorrectionValue] = useState("");
   const [correctionFeedback, setCorrectionFeedback] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [updateSuccess, setUpdateSuccess] = useState(false);
+
+  const defaultEvidenceQuarterKey = `Q1_${evidenceYearFallback}`;
+  const evidenceQuarterParam =
+    evidenceData?.evidence?.requested_quarter || defaultEvidenceQuarterKey;
+  const evidenceSymbolForUrl = evidenceData?.company_symbol ?? "";
+  const evidencePngUrl = evidenceSymbolForUrl
+    ? `${API_URL}/api/evidence/${evidenceSymbolForUrl}.png?quarter=${evidenceQuarterParam}&t=${Date.now()}`
+    : "";
 
   return (
     <Modal
@@ -483,7 +502,7 @@ const EvidenceModal = ({ open, onClose, evidenceData, loading, error, onDataUpda
         {evidenceData && !loading && (
           <>
             {/* Screenshot */}
-            {evidenceData.evidence && evidenceData.evidence.has_evidence && (
+            {evidenceData.evidence?.has_evidence && (
               <Box sx={{ mb: 4 }}>
                 <Box sx={{ 
                   display: 'flex', 
@@ -495,7 +514,7 @@ const EvidenceModal = ({ open, onClose, evidenceData, loading, error, onDataUpda
                   maxHeight: '50vh'
                 }}>
                   <img 
-                    src={`${API_URL}/api/evidence/${evidenceData.company_symbol}.png?quarter=${evidenceData.evidence?.requested_quarter || `Q1_${evidenceYearFallback}`}&t=${Date.now()}`}
+                    src={evidencePngUrl}
                     alt="Evidence Screenshot"
                     style={{ 
                       maxWidth: '100%', 
@@ -504,7 +523,7 @@ const EvidenceModal = ({ open, onClose, evidenceData, loading, error, onDataUpda
                     }}
                     onLoad={() => {
                       console.log('Evidence image loaded with quarter:', evidenceData.evidence?.requested_quarter);
-                      console.log('Full image URL:', `${API_URL}/api/evidence/${evidenceData.company_symbol}.png?quarter=${evidenceData.evidence?.requested_quarter || `Q1_${evidenceYearFallback}`}&t=${Date.now()}`);
+                      console.log('Full image URL:', evidencePngUrl);
                     }}
                   />
                 </Box>
@@ -570,15 +589,6 @@ const EvidenceModal = ({ open, onClose, evidenceData, loading, error, onDataUpda
                       }}>
                         <strong>طريقة الاستخراج:</strong> {evidenceData.extraction_method}
                       </Typography>
-              </Box>
-            )}
-
-            {/* Success Message */}
-            {updateSuccess && (
-              <Box sx={{ mb: 3 }}>
-                <Alert severity="success" sx={{ borderRadius: 2 }}>
-                  تم تحديث القيمة بنجاح! سيتم تحديث البيانات في الجدول الرئيسي.
-                </Alert>
               </Box>
             )}
 
@@ -682,6 +692,29 @@ const EvidenceModal = ({ open, onClose, evidenceData, loading, error, onDataUpda
   );
 };
 
+EvidenceModal.propTypes = {
+  open: PropTypes.bool.isRequired,
+  onClose: PropTypes.func,
+  evidenceData: PropTypes.shape({
+    company_symbol: PropTypes.string,
+    symbol: PropTypes.string,
+    evidence: PropTypes.shape({
+      has_evidence: PropTypes.bool,
+      requested_quarter: PropTypes.string,
+    }),
+    numeric_value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    applied_multiplier: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    unit_detected: PropTypes.string,
+    context: PropTypes.string,
+    extraction_method: PropTypes.string,
+  }),
+  loading: PropTypes.bool,
+  error: PropTypes.oneOfType([PropTypes.string, PropTypes.node]),
+  onDataUpdate: PropTypes.func,
+  reportingYear: PropTypes.number,
+};
+
 // Edit Value Modal Component
 const EditValueModal = ({ open, onClose, editData, onSave, loading }) => {
   const [newValue, setNewValue] = useState("");
@@ -700,7 +733,7 @@ const EditValueModal = ({ open, onClose, editData, onSave, loading }) => {
       alert("يرجى إدخال قيمة صحيحة");
       return;
     }
-    onSave(editData.companySymbol, editData.fieldType, parseFloat(newValue), feedback);
+    onSave(editData.companySymbol, editData.fieldType, Number.parseFloat(newValue), feedback);
   };
 
   const getFieldDisplayName = (fieldType) => {
@@ -854,14 +887,14 @@ const InlineEditableCell = ({ value, onSave, fieldType, companySymbol, companyNa
         body: JSON.stringify({
           company_symbol: companySymbol,
           field_type: fieldType,
-          new_value: parseFloat(editValue),
+          new_value: Number.parseFloat(editValue),
           feedback: 'Inline edit'
         }),
       });
       
       const data = await response.json();
       if (data.status === 'success') {
-        onSave(parseFloat(editValue));
+        onSave(Number.parseFloat(editValue));
         setIsEditing(false);
       } else {
         alert('فشل في حفظ التصحيح: ' + (data.message || ''));
