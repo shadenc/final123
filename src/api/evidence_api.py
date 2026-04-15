@@ -686,11 +686,12 @@ def _attach_quarterly_scheduler(project_root: Path) -> None:
 def create_app():
     from src.api.evidence_routes import EvidenceRouteContext, register_evidence_api_routes
 
+    # CSRF / Flask-WTF: Vanilla Flask does not register CSRF middleware—nothing is "disabled".
+    # This API is not cookie-session authenticated (SPA fetch is typically cross-origin without
+    # credentials), so classic browser CSRF against this app's cookies does not apply. CORS only
+    # affects which origins may read responses; protect sensitive POST /api/* with network access
+    # control or API auth in production.
     app = Flask(__name__)
-    # No Flask-WTF / CSRF middleware: plain Flask does not enable CSRF by default, and these routes
-    # are not gated by session cookies from this app (typical SPA fetch is cross-origin without
-    # credentials). CORS only controls which browser origins may read responses; deploy behind a
-    # firewall/VPN or add auth if POST /api/* must not be reachable anonymously.
     # Allow CORS from React frontend - supports both localhost and production
     allowed_list = (
         [o.strip() for o in ALLOWED_ORIGINS.split(",")]
