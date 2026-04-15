@@ -7,6 +7,8 @@ Scrapes quarterly net profit data from company financial information pages
 
 import asyncio
 import json
+
+import aiofiles
 import random
 import re
 from datetime import datetime
@@ -497,12 +499,13 @@ async def scrape_all_companies_net_profit():
         existing_map = {}
         if OUTPUT_FILE.exists():
             try:
-                with open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
-                    existing_list = json.load(f)
-                    for item in existing_list:
-                        sym = str(item.get('company_symbol', '')).strip()
-                        if sym:
-                            existing_map[sym] = item
+                async with aiofiles.open(OUTPUT_FILE, 'r', encoding='utf-8') as f:
+                    raw_existing = await f.read()
+                existing_list = json.loads(raw_existing)
+                for item in existing_list:
+                    sym = str(item.get('company_symbol', '')).strip()
+                    if sym:
+                        existing_map[sym] = item
                 print(f"🔄 Loaded existing net profit data for {len(existing_map)} companies to merge")
             except Exception as e:
                 print(f"⚠️ Failed to load existing net profit file, starting fresh merge: {e}")
@@ -544,8 +547,11 @@ async def scrape_all_companies_net_profit():
                 # Write incrementally so partial runs persist
                 try:
                     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-                    with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-                        json.dump(list(existing_map.values()), f, indent=2, ensure_ascii=False)
+                    merge_payload = json.dumps(
+                        list(existing_map.values()), indent=2, ensure_ascii=False
+                    )
+                    async with aiofiles.open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
+                        await f.write(merge_payload)
                     print(f"💾 Incrementally updated: {OUTPUT_FILE}")
                 except Exception as e:
                     print(f"⚠️ Failed to write incremental update: {e}")
@@ -556,14 +562,15 @@ async def scrape_all_companies_net_profit():
             # write progress
             try:
                 progress_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(progress_path, 'w', encoding='utf-8') as f:
-                    json.dump({
-                        "status": "running",
-                        "processed": processed,
-                        "success": success_count,
-                        "failed": failed_count,
-                        "current_symbol": symbol
-                    }, f, ensure_ascii=False)
+                np_progress = json.dumps({
+                    "status": "running",
+                    "processed": processed,
+                    "success": success_count,
+                    "failed": failed_count,
+                    "current_symbol": symbol
+                }, ensure_ascii=False)
+                async with aiofiles.open(progress_path, 'w', encoding='utf-8') as f:
+                    await f.write(np_progress)
             except Exception:
                 pass
             
@@ -592,13 +599,14 @@ async def scrape_all_companies_net_profit():
         print(f"💾 Data saved to: {OUTPUT_FILE}")
         # mark done
         try:
-            with open(progress_path, 'w', encoding='utf-8') as f:
-                json.dump({
-                    "status": "completed",
-                    "processed": processed,
-                    "success": success_count,
-                    "failed": failed_count
-                }, f, ensure_ascii=False)
+            np_done = json.dumps({
+                "status": "completed",
+                "processed": processed,
+                "success": success_count,
+                "failed": failed_count
+            }, ensure_ascii=False)
+            async with aiofiles.open(progress_path, 'w', encoding='utf-8') as f:
+                await f.write(np_done)
         except Exception:
             pass
         

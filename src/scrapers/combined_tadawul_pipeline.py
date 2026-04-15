@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import asyncio
 import json
+
+import aiofiles
 import os
 import random
 import sys
@@ -242,10 +244,11 @@ async def run_combined_pipeline() -> None:
             "failed": failed,
             "mode": "combined",
         }
+        done_json = json.dumps(done, ensure_ascii=False)
         for p in (pdfs_progress, net_progress):
             try:
-                with open(p, "w", encoding="utf-8") as f:
-                    json.dump(done, f, ensure_ascii=False)
+                async with aiofiles.open(p, "w", encoding="utf-8") as f:
+                    await f.write(done_json)
             except Exception:
                 pass
 

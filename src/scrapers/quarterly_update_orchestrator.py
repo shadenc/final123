@@ -7,6 +7,8 @@ Only processes new quarters to avoid re-downloading existing data.
 
 import asyncio
 import json
+
+import aiofiles
 import logging
 from datetime import datetime, date
 from pathlib import Path
@@ -160,8 +162,9 @@ class QuarterlyUpdateOrchestrator:
                 if new_data:
                     # Save to frontend directory
                     output_file = self.frontend_dir / FOREIGN_OWNERSHIP_JSON
-                    with open(output_file, 'w', encoding='utf-8') as f:
-                        json.dump(new_data, f, ensure_ascii=False, indent=2)
+                    payload = json.dumps(new_data, ensure_ascii=False, indent=2)
+                    async with aiofiles.open(output_file, 'w', encoding='utf-8') as f:
+                        await f.write(payload)
                     
                     logger.info(f"✅ Updated foreign ownership data: {len(new_data)} companies")
                     return True
@@ -299,8 +302,9 @@ class QuarterlyUpdateOrchestrator:
         existing_data = []
         if net_profit_file.exists():
             try:
-                with open(net_profit_file, 'r', encoding='utf-8') as f:
-                    existing_data = json.load(f)
+                async with aiofiles.open(net_profit_file, 'r', encoding='utf-8') as f:
+                    raw = await f.read()
+                existing_data = json.loads(raw)
             except Exception as e:
                 logger.warning(f"Error reading existing net profit data: {e}")
         
@@ -326,8 +330,9 @@ class QuarterlyUpdateOrchestrator:
             existing_data.append(new_data)
         
         # Save updated data
-        with open(net_profit_file, 'w', encoding='utf-8') as f:
-            json.dump(existing_data, f, indent=2, ensure_ascii=False)
+        out_payload = json.dumps(existing_data, indent=2, ensure_ascii=False)
+        async with aiofiles.open(net_profit_file, 'w', encoding='utf-8') as f:
+            await f.write(out_payload)
         
         logger.info(f"💾 Updated net profit data for {symbol}")
     
@@ -344,8 +349,9 @@ class QuarterlyUpdateOrchestrator:
         # Step 2: Get company symbols
         if ownership_success:
             ownership_file = self.frontend_dir / FOREIGN_OWNERSHIP_JSON
-            with open(ownership_file, 'r', encoding='utf-8') as f:
-                ownership_data = json.load(f)
+            async with aiofiles.open(ownership_file, 'r', encoding='utf-8') as f:
+                raw_own = await f.read()
+            ownership_data = json.loads(raw_own)
             
             symbols = [item['symbol'] for item in ownership_data if item.get('symbol')]
             logger.info(f"📋 Processing {len(symbols)} companies")
@@ -376,8 +382,9 @@ class QuarterlyUpdateOrchestrator:
         
         # Save update summary
         summary_file = self.results_dir / "quarterly_update_summary.json"
-        with open(summary_file, 'w', encoding='utf-8') as f:
-            json.dump(summary, f, indent=2, ensure_ascii=False)
+        summary_payload = json.dumps(summary, indent=2, ensure_ascii=False)
+        async with aiofiles.open(summary_file, 'w', encoding='utf-8') as f:
+            await f.write(summary_payload)
         
         logger.info("🎉 Quarterly Update Complete!")
         logger.info(f"⏱️  Duration: {duration}")

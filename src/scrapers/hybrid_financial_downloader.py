@@ -1,5 +1,7 @@
 import asyncio
 import os
+
+import aiofiles
 import re
 import json
 import sys
@@ -452,8 +454,8 @@ async def download_pdf_with_stealth(page: Page, pdf_url: str, symbol: str, year:
                 }
             """)
             if pdf_content:
-                with open(pdf_path, 'wb') as f:
-                    f.write(bytes(pdf_content))
+                async with aiofiles.open(pdf_path, 'wb') as f:
+                    await f.write(bytes(pdf_content))
                 print(f"✅ Downloaded {filename} ({len(pdf_content)} bytes)")
                 return True
             else:
@@ -590,14 +592,15 @@ async def download_all_financial_statements():
             # write progress
             try:
                 progress_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(progress_path, 'w', encoding='utf-8') as f:
-                    json.dump({
-                        "status": "running",
-                        "processed": processed,
-                        "success": success_count,
-                        "failed": failed_count,
-                        "current_symbol": symbol
-                    }, f, ensure_ascii=False)
+                progress_payload = json.dumps({
+                    "status": "running",
+                    "processed": processed,
+                    "success": success_count,
+                    "failed": failed_count,
+                    "current_symbol": symbol
+                }, ensure_ascii=False)
+                async with aiofiles.open(progress_path, 'w', encoding='utf-8') as f:
+                    await f.write(progress_payload)
             except Exception:
                 pass
             
@@ -622,13 +625,14 @@ async def download_all_financial_statements():
         print(f"📈 Success Rate: {rate:.1f}%")
         # mark done
         try:
-            with open(progress_path, 'w', encoding='utf-8') as f:
-                json.dump({
-                    "status": "completed",
-                    "processed": processed,
-                    "success": success_count,
-                    "failed": failed_count
-                }, f, ensure_ascii=False)
+            completed_payload = json.dumps({
+                "status": "completed",
+                "processed": processed,
+                "success": success_count,
+                "failed": failed_count
+            }, ensure_ascii=False)
+            async with aiofiles.open(progress_path, 'w', encoding='utf-8') as f:
+                await f.write(completed_payload)
         except Exception:
             pass
     finally:
