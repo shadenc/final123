@@ -1,0 +1,5 @@
+company_symbol,company_name,quarter,year,current_value,previous_value,flow,flow_formula,foreign_ownership,max_allowed,investor_limit,reinvested_earnings_flow,net_profit_foreign_investor,distributed_profits_foreign_investor
+2222,أرامكو السعودية,Q1,2025,1356603000000.0,1342442000000.0,14161000000.0,Q1 2025 - Annual 2024,49.0%,0.72%,0.0%,0,0.0,0.0
+2030,المصافي,Q1,2025,163856674.0,161776167.0,2080507.0,Q1 2025 - Annual 2024,49.0%,3.78%,0.0%,0,0.0,0.0
+2030,المصافي,Q2,2025,138058743.0,163856674.0,-25797931.0,Q2 2025 - Q1 2025,49.0%,3.78%,0.0%,0,-0.0,-0.0
+2030,المصافي,Q3,2025,139697621.0,138058743.0,1638878.0,Q3 2025 - Q2 2025,49.0%,3.78%,0.0%,0,0.0,0.0

@@ -1,0 +1,35 @@
+# Virtual environment
+Foreign Investment/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+
+# IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Data files (large/generated - not needed in repo)
+data/pdfs/
+data/runtime/
+output/screenshots/
+output/excel/
+output/archives/
+
+# Database
+*.db
+*.sqlite
+
+# Large data files
+*.pdf
+
+# Keep frontend/public/foreign_ownership_data.json - it's needed!
+# Ignore only data directory JSONs
+data/results/*.json
+data/ownership/*.csv 

@@ -1,0 +1,2879 @@
+[
+  {
+    "symbol": "2030",
+    "company_name": "المصافي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.78%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2222",
+    "company_name": "أرامكو السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.72%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2380",
+    "company_name": "بترو رابغ",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.52%",
+    "investor_limit": "15.0%"
+  },
+  {
+    "symbol": "2381",
+    "company_name": "الحفر العربية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.02%",
+    "investor_limit": "34.3%"
+  },
+  {
+    "symbol": "2382",
+    "company_name": "أديس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4030",
+    "company_name": "البحري*",
+    "foreign_ownership": "0.0%",
+    "max_allowed": "0.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1201",
+    "company_name": "تكوين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.25%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1202",
+    "company_name": "مبكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.49%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1210",
+    "company_name": "بي سي آي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.14%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1211",
+    "company_name": "معادن",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "11.77%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1301",
+    "company_name": "أسلاك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.95%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1304",
+    "company_name": "اليمامة للحديد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.67%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1320",
+    "company_name": "أنابيب السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.53%",
+    "investor_limit": "16.37%"
+  },
+  {
+    "symbol": "1321",
+    "company_name": "أنابيب الشرق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "17.41%",
+    "investor_limit": "26.49%"
+  },
+  {
+    "symbol": "1322",
+    "company_name": "أماك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "14.53%",
+    "investor_limit": "14.5%"
+  },
+  {
+    "symbol": "1323",
+    "company_name": "يو سي آي سي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.66%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1324",
+    "company_name": "صالح الراشد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.6%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2001",
+    "company_name": "كيمانول",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.55%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2010",
+    "company_name": "سابك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.96%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2020",
+    "company_name": "سابك للمغذيات الزراعية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "14.34%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2060",
+    "company_name": "التصنيع",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.51%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2090",
+    "company_name": "جبسكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.63%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2150",
+    "company_name": "زجاج",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.43%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2170",
+    "company_name": "اللجين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.35%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2180",
+    "company_name": "فيبكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.91%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2200",
+    "company_name": "أنابيب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "11.65%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2210",
+    "company_name": "نماء للكيماويات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.42%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2220",
+    "company_name": "معدنية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.77%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2223",
+    "company_name": "لوبريف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.91%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2240",
+    "company_name": "صناعات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2250",
+    "company_name": "المجموعة السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.86%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2290",
+    "company_name": "ينساب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.85%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2300",
+    "company_name": "صناعة الورق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.05%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2310",
+    "company_name": "سبكيم العالمية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "8.89%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2330",
+    "company_name": "المتقدمة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.58%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2350",
+    "company_name": "كيان السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.23%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2360",
+    "company_name": "الفخارية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3002",
+    "company_name": "أسمنت نجران",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3003",
+    "company_name": "أسمنت المدينة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3004",
+    "company_name": "أسمنت الشمالية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.72%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3005",
+    "company_name": "أسمنت ام القرى",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3007",
+    "company_name": "الواحة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3008",
+    "company_name": "الكثيري",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.93%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3010",
+    "company_name": "أسمنت العربية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.33%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3020",
+    "company_name": "أسمنت اليمامة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.42%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3030",
+    "company_name": "أسمنت السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.75%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3040",
+    "company_name": "أسمنت القصيم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.95%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3050",
+    "company_name": "أسمنت الجنوب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3060",
+    "company_name": "أسمنت ينبع",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "8.99%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3080",
+    "company_name": "أسمنت الشرقية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.56%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3090",
+    "company_name": "أسمنت تبوك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.7%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3091",
+    "company_name": "أسمنت الجوف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.04%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "3092",
+    "company_name": "أسمنت الرياض",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.76%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4143",
+    "company_name": "تالكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.04%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9513",
+    "company_name": "حديد وطني",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.23%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9514",
+    "company_name": "الناقول",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.71%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9523",
+    "company_name": "جروب فايف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.24%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9539",
+    "company_name": "أقاسيم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.55%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9548",
+    "company_name": "ابيكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.43%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9552",
+    "company_name": "قمة السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9553",
+    "company_name": "ملان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9563",
+    "company_name": "بناء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.05%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9565",
+    "company_name": "معيار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.34%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9566",
+    "company_name": "الصناعات الجيرية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.34%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9575",
+    "company_name": "ماربل ديزاين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.32%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9576",
+    "company_name": "منزل الورق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9580",
+    "company_name": "الراشد للصناعة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.46%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9588",
+    "company_name": "حديد الرياض",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.61%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9599",
+    "company_name": "طاقات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9601",
+    "company_name": "الرشيد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.11%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9605",
+    "company_name": "نفط الشرق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.83%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9607",
+    "company_name": "عسق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.12%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9609",
+    "company_name": "بترول ناس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.59%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9623",
+    "company_name": "مصنع البتال",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.0%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9631",
+    "company_name": "هضاب الخليج",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.17%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1212",
+    "company_name": "أسترا الصناعية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.78%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1214",
+    "company_name": "شاكر",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.52%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1302",
+    "company_name": "بوان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.71%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1303",
+    "company_name": "الصناعات الكهربائية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "20.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2040",
+    "company_name": "الخزف السعودي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.84%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2110",
+    "company_name": "الكابلات السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.9%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2160",
+    "company_name": "أميانتيت",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.7%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2320",
+    "company_name": "البابطين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "33.77%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2370",
+    "company_name": "مسك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4110",
+    "company_name": "باتك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.02%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4140",
+    "company_name": "صادرات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.69%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4141",
+    "company_name": "العمران",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4142",
+    "company_name": "كابلات الرياض",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "12.65%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4144",
+    "company_name": "رؤوم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.25%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4145",
+    "company_name": "أو جي سي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.25%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4146",
+    "company_name": "جاز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.75%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4147",
+    "company_name": "سي جي إس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.93%",
+    "investor_limit": "35.0%"
+  },
+  {
+    "symbol": "4148",
+    "company_name": "الوسائل الصناعية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.73%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9510",
+    "company_name": "الوطنية للبناء والتسويق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9533",
+    "company_name": "المركز الآلي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.0%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9542",
+    "company_name": "كير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.35%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9547",
+    "company_name": "رواسي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9560",
+    "company_name": "وجا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.31%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9568",
+    "company_name": "ميار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9569",
+    "company_name": "آل منيف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.09%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9578",
+    "company_name": "مصاعد أطلس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.72%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9583",
+    "company_name": "المتحدة للتعدين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.54%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9608",
+    "company_name": "الأشغال الميسرة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.64%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9611",
+    "company_name": "المتحدة للزجاج المسطح",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9624",
+    "company_name": "الشهيلي المعدنية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.06%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9633",
+    "company_name": "آلات الصيانة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.07%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9639",
+    "company_name": "أنماط",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.22%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1831",
+    "company_name": "مهارة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1832",
+    "company_name": "صدر",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.51%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1833",
+    "company_name": "الموارد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.64%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1834",
+    "company_name": "سماسكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.45%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1835",
+    "company_name": "تمكين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.23%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4270",
+    "company_name": "طباعة وتغليف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.32%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6004",
+    "company_name": "كاتريون",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.79%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9540",
+    "company_name": "تدوير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.67%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9545",
+    "company_name": "الدولية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9570",
+    "company_name": "تام التنموية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9593",
+    "company_name": "عبر الخليج",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.02%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9597",
+    "company_name": "الليف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.28%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9606",
+    "company_name": "ثروة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.22%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9613",
+    "company_name": "شلفا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9619",
+    "company_name": "الأعمال المتعددة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.27%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9621",
+    "company_name": "دي آر سي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.37%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9625",
+    "company_name": "إتمام",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.04%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9645",
+    "company_name": "ساين وورلد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2190",
+    "company_name": "سيسكو القابضة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "12.75%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4031",
+    "company_name": "الخدمات الأرضية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4040",
+    "company_name": "سابتكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.42%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4260",
+    "company_name": "بدجت السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "15.81%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4261",
+    "company_name": "ذيب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.15%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4262",
+    "company_name": "لومي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.94%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4263",
+    "company_name": "سال",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.03%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4264",
+    "company_name": "طيران ناس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.94%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4265",
+    "company_name": "شري",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9571",
+    "company_name": "مناوله",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.52%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9577",
+    "company_name": "دار المركبة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.91%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9584",
+    "company_name": "ريال",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.17%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9653",
+    "company_name": "خالد ظافر وإخوانه",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.05%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1213",
+    "company_name": "نسيج",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.61%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2130",
+    "company_name": "صدق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.65%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2340",
+    "company_name": "ارتيكس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.7%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4011",
+    "company_name": "لازوردي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.93%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4012",
+    "company_name": "الأصيل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.04%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4180",
+    "company_name": "مجموعة فتيحي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.86%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9618",
+    "company_name": "الفاخرة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.45%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1810",
+    "company_name": "سيرا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1820",
+    "company_name": "بان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.44%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1830",
+    "company_name": "لجام للرياضة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.17%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4170",
+    "company_name": "شمس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.74%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4290",
+    "company_name": "الخليج للتدريب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.33%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4291",
+    "company_name": "الوطنية للتعليم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4292",
+    "company_name": "عطاء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.65%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6002",
+    "company_name": "هرفي للأغذية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.42%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6012",
+    "company_name": "ريدان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.37%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6013",
+    "company_name": "التطويرية الغذائية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.13%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6014",
+    "company_name": "الآمار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.57%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6015",
+    "company_name": "أمريكانا",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "5.52%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6016",
+    "company_name": "برغرايززر",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.74%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6017",
+    "company_name": "جاهز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.14%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6018",
+    "company_name": "الأندية للرياضة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.44%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6019",
+    "company_name": "المسار الشامل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.74%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9541",
+    "company_name": "أكاديمية التعلم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.14%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9562",
+    "company_name": "بوابة الأطعمة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.05%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9567",
+    "company_name": "غذاء السلطان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.67%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9581",
+    "company_name": "كلين لايف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.03%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9590",
+    "company_name": "أرماح",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.09%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9598",
+    "company_name": "المحافظة للتعليم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.05%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9603",
+    "company_name": "الأفق التعليمية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.42%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9617",
+    "company_name": "ارابيكا ستار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9628",
+    "company_name": "لمسات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.2%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9630",
+    "company_name": "ريشيو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9632",
+    "company_name": "رؤية المستقبل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9636",
+    "company_name": "الخزامى",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4070",
+    "company_name": "تهامة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.83%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4071",
+    "company_name": "العربية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.84%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4072",
+    "company_name": "مجموعة إم بي سي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.56%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4210",
+    "company_name": "الأبحاث والإعلام",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.64%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9615",
+    "company_name": "مفيد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.78%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9642",
+    "company_name": "تايم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.11%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4003",
+    "company_name": "إكسترا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "17.84%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4008",
+    "company_name": "ساكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.55%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4050",
+    "company_name": "ساسكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.59%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4051",
+    "company_name": "باعظيم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.06%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4190",
+    "company_name": "جرير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "17.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4191",
+    "company_name": "أبو معطي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.4%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4192",
+    "company_name": "السيف غاليري",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.46%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4193",
+    "company_name": "نايس ون",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.93%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4194",
+    "company_name": "محطة البناء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.58%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4200",
+    "company_name": "الدريس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.34%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4240",
+    "company_name": "سينومي ريتيل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.16%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9522",
+    "company_name": "الحاسوب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.07%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9537",
+    "company_name": "أمواج الدولية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.07%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9551",
+    "company_name": "برج المعرفة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.91%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9589",
+    "company_name": "فاد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.29%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9649",
+    "company_name": "جمجوم فاشن",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9651",
+    "company_name": "التويجري",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.09%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4001",
+    "company_name": "أسواق ع العثيم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4006",
+    "company_name": "أسواق المزرعة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.63%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4061",
+    "company_name": "أنعام القابضة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.96%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4160",
+    "company_name": "ثمار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4161",
+    "company_name": "بن داود",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.78%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4162",
+    "company_name": "المنجم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4163",
+    "company_name": "الدواء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.94%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4164",
+    "company_name": "النهدي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.92%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9549",
+    "company_name": "البابطين الغذائية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.15%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9592",
+    "company_name": "المجتمع الطبية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.8%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2050",
+    "company_name": "مجموعة صافولا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.65%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2100",
+    "company_name": "وفرة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.06%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2270",
+    "company_name": "سدافكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.03%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2280",
+    "company_name": "المراعي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.53%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2281",
+    "company_name": "تنمية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.06%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2282",
+    "company_name": "نقي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.7%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2283",
+    "company_name": "المطاحن الأولى",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.43%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2284",
+    "company_name": "المطاحن الحديثة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2285",
+    "company_name": "المطاحن العربية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.47%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2286",
+    "company_name": "المطاحن الرابعة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.29%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2287",
+    "company_name": "إنتاج",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.97%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2288",
+    "company_name": "نفوذ",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.49%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4080",
+    "company_name": "سناد القابضة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.91%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6001",
+    "company_name": "حلواني إخوان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.91%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6010",
+    "company_name": "نادك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.39%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6020",
+    "company_name": "جاكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.63%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6040",
+    "company_name": "تبوك الزراعية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.96%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6050",
+    "company_name": "الأسماك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.86%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6060",
+    "company_name": "الشرقية للتنمية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6070",
+    "company_name": "الجوف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.21%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "6090",
+    "company_name": "جازادكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.17%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9515",
+    "company_name": "فش فاش",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.23%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9532",
+    "company_name": "مياه الجوف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.71%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9536",
+    "company_name": "فاديكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.0%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9555",
+    "company_name": "لين الخير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.0%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9559",
+    "company_name": "بلدي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.28%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9564",
+    "company_name": "آفاق الغذاء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.0%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9612",
+    "company_name": "مياه سما",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.25%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9622",
+    "company_name": "شموع الماضي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.27%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9644",
+    "company_name": "ناف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9650",
+    "company_name": "ساحة المجد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.07%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4165",
+    "company_name": "الماجد للعود",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9517",
+    "company_name": "موبي للصناعة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.46%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9579",
+    "company_name": "البخور الذكي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9635",
+    "company_name": "دخون",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.04%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2140",
+    "company_name": "أيان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.18%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2230",
+    "company_name": "الكيميائية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "8.75%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4002",
+    "company_name": "المواساة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "12.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4004",
+    "company_name": "دله الصحية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.57%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4005",
+    "company_name": "رعاية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4007",
+    "company_name": "الحمادي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.27%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4009",
+    "company_name": "السعودي الألماني الصحية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.8%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4013",
+    "company_name": "سليمان الحبيب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.83%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4014",
+    "company_name": "دار المعدات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.05%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4017",
+    "company_name": "فقيه الطبية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.35%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4018",
+    "company_name": "الموسى",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.46%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4019",
+    "company_name": "اس ام سي للرعاية الصحية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.24%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4021",
+    "company_name": "المركز الكندي الطبي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.97%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9527",
+    "company_name": "ألف ميم ياء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9530",
+    "company_name": "طبية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.25%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9544",
+    "company_name": "الرعاية المستقبلية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.26%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9546",
+    "company_name": "نبع الصحة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.61%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9572",
+    "company_name": "الرازي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9574",
+    "company_name": "بروميديكس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.8%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9587",
+    "company_name": "لانا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.43%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9594",
+    "company_name": "المداواة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.45%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9600",
+    "company_name": "كومل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.43%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9604",
+    "company_name": "ميرال",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.92%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9616",
+    "company_name": "جنى",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.59%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9620",
+    "company_name": "بلسم الطبية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.27%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9626",
+    "company_name": "سمايل كير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.41%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9627",
+    "company_name": "طوارئيات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9647",
+    "company_name": "وجد الحياة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2070",
+    "company_name": "الدوائية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4015",
+    "company_name": "جمجوم فارما",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.51%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4016",
+    "company_name": "أفالون فارما",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.62%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1010",
+    "company_name": "الرياض",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "12.8%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1020",
+    "company_name": "الجزيرة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "12.88%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1030",
+    "company_name": "الإستثمار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.95%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1050",
+    "company_name": "بي اس اف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "15.24%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1060",
+    "company_name": "الأول",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "15.83%",
+    "investor_limit": "31.0%"
+  },
+  {
+    "symbol": "1080",
+    "company_name": "العربي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "12.87%",
+    "investor_limit": "40.0%"
+  },
+  {
+    "symbol": "1120",
+    "company_name": "الراجحي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "15.87%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1140",
+    "company_name": "البلاد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.93%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1150",
+    "company_name": "الإنماء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "14.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1180",
+    "company_name": "الأهلي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "18.92%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1111",
+    "company_name": "مجموعة تداول",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.77%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1182",
+    "company_name": "أملاك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.51%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "1183",
+    "company_name": "سهل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.82%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2120",
+    "company_name": "متطورة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.18%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4081",
+    "company_name": "النايفات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.02%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4082",
+    "company_name": "مرنة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4083",
+    "company_name": "تسهيل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.02%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4084",
+    "company_name": "دراية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.94%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4130",
+    "company_name": "درب السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.64%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4280",
+    "company_name": "المملكة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.55%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9585",
+    "company_name": "ملكية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.21%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9586",
+    "company_name": "أصول وبخيت",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.02%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9596",
+    "company_name": "كوارا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.13%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9602",
+    "company_name": "يقين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8010",
+    "company_name": "التعاونية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "18.94%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8012",
+    "company_name": "جزيرة تكافل",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.06%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8020",
+    "company_name": "ملاذ للتأمين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8030",
+    "company_name": "ميدغلف للتأمين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.47%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8040",
+    "company_name": "متكاملة",
+    "foreign_ownership": "60.0%",
+    "max_allowed": "2.33%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8050",
+    "company_name": "سلامة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8060",
+    "company_name": "ولاء",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.41%",
+    "investor_limit": "3.57%"
+  },
+  {
+    "symbol": "8070",
+    "company_name": "الدرع العربي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.89%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8100",
+    "company_name": "سايكو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8120",
+    "company_name": "إتحاد الخليج الأهلية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.78%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8150",
+    "company_name": "أسيج",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.57%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8160",
+    "company_name": "التأمين العربية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.38%",
+    "investor_limit": "9.19%"
+  },
+  {
+    "symbol": "8170",
+    "company_name": "الاتحاد",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.86%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8180",
+    "company_name": "الصقر للتأمين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.82%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8190",
+    "company_name": "المتحدة للتأمين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.99%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8200",
+    "company_name": "الإعادة السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8210",
+    "company_name": "بوبا العربية",
+    "foreign_ownership": "60.0%",
+    "max_allowed": "14.56%",
+    "investor_limit": "43.25%"
+  },
+  {
+    "symbol": "8230",
+    "company_name": "تكافل الراجحي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.7%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8240",
+    "company_name": "تْشب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.66%",
+    "investor_limit": "30.0%"
+  },
+  {
+    "symbol": "8250",
+    "company_name": "جي آي جي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.22%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8260",
+    "company_name": "الخليجية العامة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.84%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8280",
+    "company_name": "ليفا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.02%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8300",
+    "company_name": "الوطنية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8310",
+    "company_name": "أمانة للتأمين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8311",
+    "company_name": "عناية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.96%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "8313",
+    "company_name": "رسن",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "30.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7200",
+    "company_name": "ام آي اس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.89%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7201",
+    "company_name": "بحر العرب",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.58%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7202",
+    "company_name": "سلوشنز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.53%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7203",
+    "company_name": "علم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.53%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7204",
+    "company_name": "توبي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.27%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7211",
+    "company_name": "عزم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.21%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9524",
+    "company_name": "آيكتك",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.39%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9538",
+    "company_name": "نسيج للتقنية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.0%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9543",
+    "company_name": "نت وركرس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.62%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9550",
+    "company_name": "شور",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.97%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9557",
+    "company_name": "إدارات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "23.4%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9558",
+    "company_name": "القمم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9561",
+    "company_name": "نولجنت",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.65%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9595",
+    "company_name": "وسم",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.31%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9614",
+    "company_name": "نقاوة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.39%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9637",
+    "company_name": "الحلول المتسارعة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.06%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7010",
+    "company_name": "اس تي سي",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "9.84%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7020",
+    "company_name": "إتحاد إتصالات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "23.92%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7030",
+    "company_name": "زين السعودية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "14.71%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "7040",
+    "company_name": "قو للإتصالات",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.75%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2080",
+    "company_name": "الغاز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2081",
+    "company_name": "الخريف",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "8.94%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2082",
+    "company_name": "أكوا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "3.73%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2083",
+    "company_name": "مرافق",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.87%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "2084",
+    "company_name": "مياهنا",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.03%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "5110",
+    "company_name": "السعودية للطاقة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.9%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9516",
+    "company_name": "غاز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.16%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4330",
+    "company_name": "الرياض ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "3.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4331",
+    "company_name": "الجزيرة ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.9%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4332",
+    "company_name": "جدوى ريت الحرمين",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.56%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4333",
+    "company_name": "تعليم ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.53%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4334",
+    "company_name": "المعذر ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "3.22%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4335",
+    "company_name": "مشاركة ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "3.76%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4336",
+    "company_name": "ملكية ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.66%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4337",
+    "company_name": "العزيزية ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.9%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4338",
+    "company_name": "الأهلي ريت 1",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4339",
+    "company_name": "دراية ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "4.47%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4340",
+    "company_name": "الراجحي ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "10.01%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4342",
+    "company_name": "جدوى ريت السعودية",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "5.15%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4344",
+    "company_name": "سدكو كابيتال ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.57%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4345",
+    "company_name": "الإنماء ريت للتجزئة",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "5.2%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4346",
+    "company_name": "ميفك ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.62%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4347",
+    "company_name": "بنيان ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "1.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4348",
+    "company_name": "الخبير ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "3.16%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4349",
+    "company_name": "الإنماء ريت الفندقي",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "4.25%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4350",
+    "company_name": "الإستثمار ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.74%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9300",
+    "company_name": "الواحة ريت",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4020",
+    "company_name": "العقارية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.56%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4090",
+    "company_name": "طيبة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.24%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4100",
+    "company_name": "مكة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "7.81%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4150",
+    "company_name": "التعمير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "6.97%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4220",
+    "company_name": "إعمار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.5%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4230",
+    "company_name": "البحر الأحمر",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "5.16%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4250",
+    "company_name": "جبل عمر",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "8.47%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4300",
+    "company_name": "دار الأركان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "10.56%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4310",
+    "company_name": "مدينة المعرفة",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.96%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4320",
+    "company_name": "الأندلس",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "1.28%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4321",
+    "company_name": "سينومي سنترز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "11.08%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4322",
+    "company_name": "رتال",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "8.37%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4323",
+    "company_name": "سمو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "2.32%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4324",
+    "company_name": "بنان",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4325",
+    "company_name": "مسار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "4.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4326",
+    "company_name": "الماجدية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.99%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4327",
+    "company_name": "الرمز",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.31%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9521",
+    "company_name": "إنمار",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.11%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9535",
+    "company_name": "لدن",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.3%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9591",
+    "company_name": "فيو",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.14%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9610",
+    "company_name": "الجادة الأولى",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9634",
+    "company_name": "أدير",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.89%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9640",
+    "company_name": "أساس مكين",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.07%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9641",
+    "company_name": "هوية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.1%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9648",
+    "company_name": "حمد بن سعيدان العقارية",
+    "foreign_ownership": "49.0%",
+    "max_allowed": "0.19%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4700",
+    "company_name": "الخبير للدخل",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.37%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4701",
+    "company_name": "الخبير للنمو والدخل",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.6%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4702",
+    "company_name": "الخبير للدخل 2030",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "5.68%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "4703",
+    "company_name": "سدكو متعدد الأصول",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "3.45%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9400",
+    "company_name": "صندوق يقين 30",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "3.54%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9401",
+    "company_name": "صندوق يقين للبتروكيماويات",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "5.24%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9402",
+    "company_name": "صندوق الأول للاستثمار الكمي المتداول",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.36%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9403",
+    "company_name": "صندوق البلاد للصكوك السيادية",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "2.21%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9404",
+    "company_name": "صندوق الإنماء للصكوك الحكومية",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.16%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9405",
+    "company_name": "صندوق البلاد للذهب",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "30.45%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9406",
+    "company_name": "صندوق البلاد الأمريكي",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "8.51%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9407",
+    "company_name": "صندوق البلاد التقني الأمريكي",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "14.32%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9408",
+    "company_name": "صندوق البلاد للنمو السعودي",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.38%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9409",
+    "company_name": "صندوق يقين إي إس جي",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.55%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9410",
+    "company_name": "صندوق البلاد هونج كونج الصين",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "99.79%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9411",
+    "company_name": "صندوق الأول للاستثمار هونج كونج",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "99.72%",
+    "investor_limit": "0.0%"
+  },
+  {
+    "symbol": "9412",
+    "company_name": "صندوق البلاد للأسهم السعودية",
+    "foreign_ownership": "100.0%",
+    "max_allowed": "0.24%",
+    "investor_limit": "0.0%"
+  }
+]

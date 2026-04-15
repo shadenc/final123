@@ -1,0 +1,30 @@
+name: SonarQube Scan
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sonarqube:
+    name: SonarQube Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Repo sanity check
+        run: |
+          test -f requirements.txt
+          test -f sonar-project.properties
+
+      # Without SONAR_TOKEN + SONAR_HOST_URL in repo Secrets, Sonar fails.
+      # continue-on-error keeps CI green until you configure SonarQube / SonarCloud.
+      - name: SonarQube Scan
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
