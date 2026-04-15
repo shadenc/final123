@@ -1430,7 +1430,7 @@ function App() {
     // Filter by quarter - now all companies have rows for all quarters
     filtered = filtered.filter(row => row.quarter === quarterFilter);
     
-    console.log(`Showing ${filtered.length} companies for ${quarterFilter}`);
+    console.log(`Showing ${filtered.length} companies for selected quarter`);
     
     // Then apply search filter
     if (search) {

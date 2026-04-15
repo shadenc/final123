@@ -359,12 +359,13 @@ def create_app():
                 return jsonify({"error": "Evidence screenshot not found"}), 404
 
             screenshot_path = screenshot_files[0]
-            logger.info(f"Serving screenshot: {screenshot_path} for company {company_symbol} quarter {quarter}")
+            # Do not log request path parameters (company_symbol, quarter) or filesystem paths.
+            logger.info("Serving evidence screenshot")
             
             return send_file(str(screenshot_path), mimetype='image/png')
             
         except Exception as e:
-            logger.error(f"Error serving screenshot for {company_symbol}: {e}")
+            logger.exception("Error serving evidence screenshot")
             return jsonify({"error": MSG_INTERNAL_ERROR}), 500
 
     @app.route('/api/extractions')
@@ -1307,7 +1308,8 @@ def create_app():
                     
                     # Override quarter filter with custom date quarter
                     quarter_filter = custom_quarter
-                    logger.info(f"Custom date {custom_date} maps to quarter {custom_quarter} {custom_year}")
+                    # Do not log raw custom_date (request-controlled); derived quarter/year are safe metadata.
+                    logger.info("Custom date filter applied; using quarter %s %s", custom_quarter, custom_year)
                     
                 except ValueError:
                     return jsonify({"error": "Invalid custom date format. Use YYYY-MM-DD"}), 400

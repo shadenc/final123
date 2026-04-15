@@ -15,6 +15,25 @@ from typing import Dict, List, Optional, Tuple
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+_PDfs_ROOT = Path("data/pdfs")
+
+
+def _safe_pdf_path(pdf_filename: str) -> Optional[Path]:
+    """Resolve a PDF path under data/pdfs only (blocks path traversal). Same file when input is a plain basename."""
+    if not pdf_filename or not isinstance(pdf_filename, str):
+        return None
+    root = _PDfs_ROOT.resolve()
+    try:
+        resolved = (root / pdf_filename).resolve()
+    except (OSError, ValueError, RuntimeError):
+        return None
+    try:
+        resolved.relative_to(root)
+    except ValueError:
+        return None
+    return resolved
+
+
 class EvidenceScreenshotGenerator:
     def __init__(self, output_dir: str = "output/screenshots"):
         self.output_dir = Path(output_dir)
@@ -61,15 +80,19 @@ class EvidenceScreenshotGenerator:
                     areas = page.search_for(variant)
                     if areas:
                         doc.close()
-                        logger.info(f"Found value '{variant}' in {pdf_path} page {page_num + 1}")
+                        logger.info(
+                            "Found search match in %s page %s",
+                            Path(pdf_path).name,
+                            page_num + 1,
+                        )
                         return (page_num, areas[0])  # Return first match
             
             doc.close()
-            logger.warning(f"Could not find any variant of '{search_value}' in {pdf_path}")
+            logger.warning("Could not find search value in %s", Path(pdf_path).name)
             return None
             
-        except Exception as e:
-            logger.error(f"Error searching PDF {pdf_path}: {e}")
+        except Exception:
+            logger.exception("Error searching PDF %s", Path(pdf_path).name)
             return None
     
     def generate_highlight_screenshot(self, pdf_path: str, search_value: str, company_symbol: str) -> Optional[str]:
@@ -81,7 +104,7 @@ class EvidenceScreenshotGenerator:
             # Find the value location
             result = self.find_value_in_pdf(pdf_path, search_value)
             if not result:
-                logger.warning(f"Could not find value {search_value} in {pdf_path}")
+                logger.warning("Could not find search value in %s", Path(pdf_path).name)
                 return None
             page_num, rect = result
             # Open PDF and get the page
@@ -101,10 +124,10 @@ class EvidenceScreenshotGenerator:
             # Save the screenshot
             pix.save(str(output_path))
             doc.close()
-            logger.info(f"Generated evidence screenshot: {output_path}")
+            logger.info("Generated evidence screenshot: %s", output_path.name)
             return str(output_path)
-        except Exception as e:
-            logger.error(f"Error generating screenshot for {pdf_path}: {e}")
+        except Exception:
+            logger.exception("Error generating screenshot for %s", Path(pdf_path).name)
             return None
     
     def generate_page_screenshot(self, pdf_path: str, page_number: int, company_symbol: str) -> Optional[str]:
@@ -121,10 +144,10 @@ class EvidenceScreenshotGenerator:
             output_path = self.output_dir / output_filename
             pix.save(str(output_path))
             doc.close()
-            logger.info(f"Generated page screenshot: {output_path}")
+            logger.info("Generated page screenshot: %s", output_path.name)
             return str(output_path)
-        except Exception as e:
-            logger.error(f"Error generating page screenshot for {pdf_path}: {e}")
+        except Exception:
+            logger.exception("Error generating page screenshot for %s", Path(pdf_path).name)
             return None
     
     def generate_all_evidence_screenshots(self, results_file: str = "data/results/retained_earnings_results.json"):
@@ -146,10 +169,14 @@ class EvidenceScreenshotGenerator:
                 pdf_filename = result['pdf_filename']
                 value = result['value']
                 
-                pdf_path = f"data/pdfs/{pdf_filename}"
+                resolved_pdf = _safe_pdf_path(pdf_filename)
+                if resolved_pdf is None:
+                    logger.warning("Invalid or unsafe PDF filename skipped")
+                    continue
+                pdf_path = str(resolved_pdf)
                 
                 if not os.path.exists(pdf_path):
-                    logger.warning(f"PDF not found: {pdf_path}")
+                    logger.warning("PDF not found: %s", resolved_pdf.name)
                     continue
                 
                 screenshot_path = self.generate_highlight_screenshot(
@@ -174,8 +201,8 @@ class EvidenceScreenshotGenerator:
             
             return generated_screenshots
             
-        except Exception as e:
-            logger.error(f"Error generating evidence screenshots: {e}")
+        except Exception:
+            logger.exception("Error generating evidence screenshots")
             return []
 
 def main():
@@ -189,9 +216,10 @@ def main():
     print(f"Generated screenshots: {len(screenshots)}")
     
     if screenshots:
-        print(f"\nGenerated evidence for:")
+        print("\nGenerated evidence entries (paths under output/screenshots/):")
         for screenshot in screenshots:
-            print(f"  {screenshot['company_symbol']}: {screenshot['value']} -> {screenshot['screenshot_path']}")
+            name = Path(screenshot["screenshot_path"]).name
+            print(f"  {name}")
     
     print(f"\nScreenshots saved to: output/screenshots/")
     print(f"Metadata saved to: output/screenshots/evidence_metadata.json")
