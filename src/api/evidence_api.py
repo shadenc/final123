@@ -8,6 +8,7 @@ from flask_cors import CORS
 from flask_wtf import CSRFProtect
 import json
 import os
+import secrets
 from pathlib import Path
 import logging
 import subprocess
@@ -19,15 +20,12 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import shutil
 import threading
 
-# Allow `python src/api/evidence_api.py` from repo root (package `src` must be importable).
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-# Get environment variables for production
 ALLOWED_ORIGINS = os.getenv('ALLOWED_ORIGINS', '*')
 
-# Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
@@ -78,7 +76,6 @@ def resolve_evidence_screenshot_paths(screenshots_dir: Path, company_symbol: str
     return paths
 
 
-# --- Path fragments & messages (deduplicated; Sonar / maintainability) ---
 SCREENSHOTS_RELPATH = "output/screenshots"
 FLOW_CSV_RELPATH = "data/results/retained_earnings_flow.csv"
 RESULTS_JSON_RELPATH = "data/results/retained_earnings_results.json"
@@ -89,14 +86,12 @@ RUNTIME_PDFS_PROGRESS_JSON = "data/runtime/pdfs_progress.json"
 RUNTIME_STOP_NET_FLAG = "data/runtime/stop_net_profit.flag"
 RUNTIME_NET_PROGRESS_JSON = "data/runtime/net_profit_progress.json"
 SCRIPT_CALCULATE_REINVESTED = "src/calculators/calculate_reinvested_earnings.py"
-# One Playwright job at a time: parallel PDF + net-profit subprocesses can crash Chromium (e.g. headed on macOS).
 _PLAYWRIGHT_SCRAPER_LOCK = threading.Lock()
 SCRIPT_GENERATE_SCREENSHOTS = "src/utils/generate_evidence_screenshots.py"
 MSG_INTERNAL_ERROR = "Internal server error"
 MSG_FILE_NOT_FOUND = "File not found"
 MSG_OWNERSHIP_UPDATED_OK = "Ownership data updated successfully"
 MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-# Arabic "not available" for Excel export columns (single literal for Sonar duplicate-string rule)
 DISPLAY_NONE_AR = "لايوجد"
 
 
@@ -689,18 +684,10 @@ def _attach_quarterly_scheduler(project_root: Path) -> None:
 def create_app():
     from src.api.evidence_routes import EvidenceRouteContext, register_evidence_api_routes
 
-    # CSRF mitigations assume the browser auto-sends auth cookies to this origin so a malicious
-    # site can trigger a forged state-changing request as the victim. This API is not protected
-    # that way: the SPA calls it with default fetch (no credentials) across origins, so session
-    # cookies from this app are not attached—classic cookie-based CSRF against “logged-in API”
-    # sessions does not apply. WTF_CSRF_CHECK_DEFAULT=False only skips Flask-WTF’s blanket token
-    # check meant for server-rendered HTML forms; CSRFProtect stays registered. Lock down sensitive
-    # POST /api/* with network access and/or explicit API auth in production.
     app = Flask(__name__)
-    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-set-SECRET_KEY-in-production")
-    app.config["WTF_CSRF_CHECK_DEFAULT"] = False  # NOSONAR S4502
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
+    app.config["WTF_CSRF_CHECK_DEFAULT"] = False
     csrf.init_app(app)
-    # Allow CORS from React frontend - supports both localhost and production
     allowed_list = (
         [o.strip() for o in ALLOWED_ORIGINS.split(",")]
         if ALLOWED_ORIGINS != "*"
@@ -715,11 +702,8 @@ def create_app():
     return app
 
 
-
-# Create app instance for Gunicorn
 app = create_app()
 
-# Ensure directories exist for production
 PROJECT_ROOT = Path(__file__).parent.parent.parent.resolve()
 (PROJECT_ROOT / SCREENSHOTS_RELPATH).mkdir(parents=True, exist_ok=True)
 (PROJECT_ROOT / "data/results").mkdir(parents=True, exist_ok=True)
