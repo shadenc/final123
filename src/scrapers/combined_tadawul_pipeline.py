@@ -88,7 +88,7 @@ async def _download_report_pdfs_for_company(
     stop_pdf = Path(os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG))
     for stype, year, pdf_url in reports:
         if stop_pdf.exists():
-            print("🛑 Stop requested. Halting PDF downloads for this company.")
+            print(" Stop requested. Halting PDF downloads for this company.")
             all_ok = False
             break
         dl_ok = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
@@ -123,21 +123,21 @@ async def process_company_single_visit(
         if await navigate_to_financial_information(page, symbol):
             net_data = await scrape_quarterly_net_profit(page, symbol)
         else:
-            print(f"⚠️  {symbol}: Financial Information navigation failed; continuing to PDFs only.")
+            print(f"  {symbol}: Financial Information navigation failed; continuing to PDFs only.")
 
         if _stop_requested():
             return False, net_data
 
         reports = await get_all_financial_reports(page, symbol, already_on_profile=True)
         if not reports:
-            print(f"⚠️  {symbol}: No PDF reports matched filter.")
+            print(f"  {symbol}: No PDF reports matched filter.")
             return _net_profit_has_data(net_data), net_data
 
         all_ok = await _download_report_pdfs_for_company(page, symbol, reports)
         useful_np = _net_profit_has_data(net_data)
         return (all_ok or useful_np), net_data
     except Exception as e:
-        print(f"❌ Combined processing error for {symbol}: {e}")
+        print(f" Combined processing error for {symbol}: {e}")
         return False, None
     finally:
         try:
@@ -178,7 +178,7 @@ async def _ensure_connected_browser(
 ):
     if browser.is_connected():
         return playwright, browser, context
-    print("♻️ Relaunching browser...")
+    print(" Relaunching browser...")
     await teardown_playwright_bundle(playwright, browser)
     return await setup_stealth_browser()
 
@@ -221,20 +221,20 @@ async def _write_combined_done_files(
 async def _delay_before_next_combined_company(i: int, total: int) -> None:
     if i < total and not _stop_requested():
         delay = random.uniform(3, 7)
-        print(f"⏳ Waiting {delay:.1f}s before next company...")
+        print(f" Waiting {delay:.1f}s before next company...")
         await asyncio.sleep(delay)
 
 
 async def run_combined_pipeline() -> None:
     companies = get_company_symbols_from_json()
     if not companies:
-        print("❌ No company symbols found.")
+        print(" No company symbols found.")
         return
 
     pdfs_progress = Path(os.environ.get("PROGRESS_FILE", DEFAULT_PDFS_PROGRESS_FILE))
     net_progress = Path(os.environ.get("PROGRESS_FILE_NET", "data/runtime/net_profit_progress.json"))
 
-    print(f"📋 Combined pipeline: {len(companies)} companies (one search + profile visit each)")
+    print(f" Combined pipeline: {len(companies)} companies (one search + profile visit each)")
     print("   Order: net profit first, then financial statement PDFs (same browser session)")
 
     playwright, browser, context = await setup_stealth_browser()
@@ -249,10 +249,10 @@ async def run_combined_pipeline() -> None:
 
         for i, symbol in enumerate(companies, 1):
             if _stop_requested():
-                print("🛑 Stop requested. Ending combined pipeline.")
+                print(" Stop requested. Ending combined pipeline.")
                 break
 
-            print(f"\n{'='*50}\n📊 [{i}/{len(companies)}] {symbol} (single visit)\n{'='*50}")
+            print(f"\n{'='*50}\n [{i}/{len(companies)}] {symbol} (single visit)\n{'='*50}")
 
             playwright, browser, context = await _ensure_connected_browser(
                 playwright, browser, context
@@ -262,7 +262,7 @@ async def run_combined_pipeline() -> None:
 
             if net_data and net_data.get("quarterly_net_profit"):
                 _merge_net_profit_file(symbol, net_data)
-                print(f"💾 Net profit merged for {symbol}")
+                print(f" Net profit merged for {symbol}")
 
             processed += 1
             if ok:
@@ -286,7 +286,7 @@ async def run_combined_pipeline() -> None:
 
             lim = _limit_companies_hit(i)
             if lim is not None:
-                print(f"\n🛑 Stopping after {lim} companies")
+                print(f"\n Stopping after {lim} companies")
                 break
 
             await _delay_before_next_combined_company(i, len(companies))
@@ -303,7 +303,7 @@ async def run_combined_pipeline() -> None:
             },
         )
 
-        print(f"\n✅ Combined pipeline finished: ok~{success} failed~{failed}")
+        print(f"\n Combined pipeline finished: ok~{success} failed~{failed}")
     finally:
         await teardown_playwright_bundle(playwright, browser)
 

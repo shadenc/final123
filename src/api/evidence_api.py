@@ -224,10 +224,10 @@ def _scheduler_archive_quarterly_output(
         for screenshot in screenshots_dir.glob(quarter_pattern):
             shutil.copy(screenshot, screenshots_archive_dir / screenshot.name)
 
-    logger.info(f"[Scheduler] ✅ Archived results to {archive_dir}")
-    logger.info(f"[Scheduler] ✅ Excel file: {archive_excel_name}")
-    logger.info(f"[Scheduler] ✅ CSV file: {archive_csv_name}")
-    logger.info("[Scheduler] ✅ Evidence screenshots copied")
+    logger.info(f"[Scheduler] Archived results to {archive_dir}")
+    logger.info(f"[Scheduler] Excel file: {archive_excel_name}")
+    logger.info(f"[Scheduler] CSV file: {archive_csv_name}")
+    logger.info("[Scheduler] Evidence screenshots copied")
 
 
 def run_quarterly_refresh_and_archive(project_root: Path) -> None:
@@ -246,7 +246,7 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
             text=True,
             cwd=str(project_root),
         )
-        logger.info("[Scheduler] ✅ Reinvested earnings calculation completed")
+        logger.info("[Scheduler] Reinvested earnings calculation completed")
 
         logger.info("[Scheduler] Step 2: Regenerating evidence screenshots...")
         subprocess.run(
@@ -256,7 +256,7 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
             text=True,
             cwd=str(project_root),
         )
-        logger.info("[Scheduler] ✅ Evidence screenshots regeneration completed")
+        logger.info("[Scheduler] Evidence screenshots regeneration completed")
 
         logger.info("[Scheduler] Step 3: Exporting dashboard table for each quarter...")
 
@@ -266,7 +266,7 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
 
         ownership_json_path = project_root / "data/ownership/foreign_ownership_data.json"
         if not ownership_json_path.exists():
-            logger.error("[Scheduler] ❌ Ownership data file not found")
+            logger.error("[Scheduler] Ownership data file not found")
             return
 
         with open(ownership_json_path, "r", encoding="utf-8") as f:
@@ -274,7 +274,7 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
 
         csv_path = project_root / FLOW_CSV_RELPATH
         if not csv_path.exists():
-            logger.error("[Scheduler] ❌ Retained earnings flow data file not found")
+            logger.error("[Scheduler] Retained earnings flow data file not found")
             return
 
         flow_data = pd.read_csv(csv_path)
@@ -329,10 +329,10 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
                 project_root, output_path, csv_path, current_year, current_quarter
             )
         else:
-            logger.error("[Scheduler] ❌ Failed to export Excel file")
+            logger.error("[Scheduler] Failed to export Excel file")
 
     except Exception as e:
-        logger.error(f"[Scheduler] ❌ Error in scheduled refresh: {e}")
+        logger.error(f"[Scheduler] Error in scheduled refresh: {e}")
         import traceback
 
         logger.error(f"[Scheduler] Traceback: {traceback.format_exc()}")
@@ -348,9 +348,9 @@ def run_daily_ownership_scraper_and_recalc(project_root: Path) -> None:
 
             scraper = TadawulOwnershipScraper(base_url="https://www.saudiexchange.sa")
             scraper.scrape_to_files(output_dir=str(project_root / "data/ownership"), debug=False)
-            logger.info("[Scheduler] ✅ Ownership data updated")
+            logger.info("[Scheduler] Ownership data updated")
         except Exception as e:
-            logger.error(f"[Scheduler] ❌ Ownership update failed: {e}")
+            logger.error(f"[Scheduler] Ownership update failed: {e}")
 
         try:
             logger.info("[Scheduler] Step 2: Recalculating reinvested earnings flows...")
@@ -361,11 +361,11 @@ def run_daily_ownership_scraper_and_recalc(project_root: Path) -> None:
                 text=True,
                 cwd=str(project_root),
             )
-            logger.info("[Scheduler] ✅ Recalculation finished")
+            logger.info("[Scheduler] Recalculation finished")
         except subprocess.CalledProcessError as e:
-            logger.error(f"[Scheduler] ❌ Recalculation failed: {e.stderr}")
+            logger.error(f"[Scheduler] Recalculation failed: {e.stderr}")
     except Exception as e:
-        logger.error(f"[Scheduler] ❌ Unexpected error in daily ownership job: {e}")
+        logger.error(f"[Scheduler] Unexpected error in daily ownership job: {e}")
 
 
 def _run_pdfs_pipeline_task(project_root: Path, downloader: Path, extractor: Path) -> None:
@@ -437,7 +437,7 @@ def _run_pdfs_pipeline_task(project_root: Path, downloader: Path, extractor: Pat
             stop_flag_file.unlink()
     except Exception:
         pass
-    logger.info("[Pipeline] ✅ Pipeline completed (download → extract → calculate → screenshots)")
+    logger.info("[Pipeline] Pipeline completed (download → extract → calculate → screenshots)")
 
 
 def _write_combined_progress_both(project_root: Path, payload: dict) -> None:
@@ -626,7 +626,7 @@ def _run_net_profit_background_task(project_root: Path, scraper: Path) -> None:
         logger.info("[NetProfit] Recalculating flows after net profit update...")
         calc = project_root / SCRIPT_CALCULATE_REINVESTED
         subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
-        logger.info("[NetProfit] ✅ Completed")
+        logger.info("[NetProfit] Completed")
     except subprocess.CalledProcessError as e:
         logger.error(f"[NetProfit] Recalculation failed: {e}")
     finally:
@@ -677,10 +677,10 @@ def _attach_quarterly_scheduler(project_root: Path) -> None:
     )
 
     scheduler.start()
-    logger.info("[Scheduler] ✅ Quarterly scheduler started successfully")
-    logger.info("[Scheduler] 📅 Will run at end of each quarter (Mar 31, Jun 30, Sep 30, Dec 31)")
-    logger.info("[Scheduler] 🧪 Daily test run at 2 AM for development")
-    logger.info("[Scheduler] 🗓️ Daily ownership update scheduled at 03:00")
+    logger.info("[Scheduler] Quarterly scheduler started successfully")
+    logger.info("[Scheduler] Will run at end of each quarter (Mar 31, Jun 30, Sep 30, Dec 31)")
+    logger.info("[Scheduler] Daily test run at 2 AM for development")
+    logger.info("[Scheduler] Daily ownership update scheduled at 03:00")
 
 
 def create_app():

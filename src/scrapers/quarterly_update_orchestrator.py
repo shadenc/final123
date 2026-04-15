@@ -153,7 +153,7 @@ class QuarterlyUpdateOrchestrator:
     
     async def update_foreign_ownership_data(self) -> bool:
         """Update foreign ownership data if needed."""
-        logger.info("🔄 Checking foreign ownership data...")
+        logger.info(" Checking foreign ownership data...")
         
         try:
             async with TadawulOwnershipScraper(base_url="https://www.saudiexchange.sa") as scraper:
@@ -166,14 +166,14 @@ class QuarterlyUpdateOrchestrator:
                     async with aiofiles.open(output_file, 'w', encoding='utf-8') as f:
                         await f.write(payload)
                     
-                    logger.info(f"✅ Updated foreign ownership data: {len(new_data)} companies")
+                    logger.info(f" Updated foreign ownership data: {len(new_data)} companies")
                     return True
                 else:
-                    logger.warning("⚠️  No foreign ownership data retrieved")
+                    logger.warning("  No foreign ownership data retrieved")
                     return False
                     
         except Exception as e:
-            logger.error(f"❌ Error updating foreign ownership data: {e}")
+            logger.error(f" Error updating foreign ownership data: {e}")
             return False
     
     @staticmethod
@@ -195,13 +195,13 @@ class QuarterlyUpdateOrchestrator:
         reports: List[Tuple[str, int, str]],
     ) -> List[str]:
         if not reports:
-            logger.warning(f"⚠️  No reports found for {symbol}")
+            logger.warning(f"  No reports found for {symbol}")
             return []
         new_reports = self._filter_new_pdf_reports(reports, existing_quarters)
         if not new_reports:
-            logger.info(f"✅ {symbol}: All PDFs already up-to-date")
+            logger.info(f" {symbol}: All PDFs already up-to-date")
             return []
-        logger.info(f"📥 {symbol}: Downloading {len(new_reports)} new reports")
+        logger.info(f" {symbol}: Downloading {len(new_reports)} new reports")
         downloaded = []
         for stype, year, pdf_url in new_reports:
             success = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
@@ -211,7 +211,7 @@ class QuarterlyUpdateOrchestrator:
 
     async def update_financial_pdfs(self, symbols: List[str]) -> Dict[str, List[str]]:
         """Update financial PDFs for companies, only downloading new quarters."""
-        logger.info("🔄 Updating financial PDFs...")
+        logger.info(" Updating financial PDFs...")
         
         # Setup browser
         playwright, browser, context = await setup_stealth_browser()
@@ -220,11 +220,11 @@ class QuarterlyUpdateOrchestrator:
         
         try:
             for i, symbol in enumerate(symbols, 1):
-                logger.info(f"📊 Processing PDFs for {symbol} ({i}/{len(symbols)})")
+                logger.info(f" Processing PDFs for {symbol} ({i}/{len(symbols)})")
                 
                 # Check what quarters we already have
                 existing_quarters = self._check_existing_pdfs(symbol)
-                logger.info(f"📁 Existing PDFs for {symbol}: {existing_quarters}")
+                logger.info(f" Existing PDFs for {symbol}: {existing_quarters}")
                 
                 # Get available reports from Tadawul (use configured context, keep page open for downloads)
                 page = await context.new_page()
@@ -264,27 +264,27 @@ class QuarterlyUpdateOrchestrator:
         self, context, browser, symbol: str
     ) -> List[str]:
         existing_quarters = self._check_existing_net_profit_data(symbol)
-        logger.info(f"📁 Existing net profit data for {symbol}: {existing_quarters}")
+        logger.info(f" Existing net profit data for {symbol}: {existing_quarters}")
 
         new_data = await process_net_profit_company(context, browser, symbol)
         if not new_data:
-            logger.warning(f"⚠️  Failed to get net profit data for {symbol}")
+            logger.warning(f"  Failed to get net profit data for {symbol}")
             return []
 
         new_quarters = self._new_net_profit_quarters(
             new_data.get("quarterly_net_profit", {}), existing_quarters
         )
         if new_quarters:
-            logger.info(f"📈 {symbol}: New quarters: {new_quarters}")
+            logger.info(f" {symbol}: New quarters: {new_quarters}")
             await self._update_net_profit_file(symbol, new_data)
             return new_quarters
 
-        logger.info(f"✅ {symbol}: Net profit data already up-to-date")
+        logger.info(f" {symbol}: Net profit data already up-to-date")
         return []
 
     async def update_net_profit_data(self, symbols: List[str]) -> Dict[str, List[str]]:
         """Update net profit data for companies, only scraping new quarters."""
-        logger.info("🔄 Updating net profit data...")
+        logger.info(" Updating net profit data...")
         
         # Setup browser
         playwright, browser, context = await setup_net_profit_browser()
@@ -293,7 +293,7 @@ class QuarterlyUpdateOrchestrator:
         
         try:
             for i, symbol in enumerate(symbols, 1):
-                logger.info(f"📊 Processing net profit for {symbol} ({i}/{len(symbols)})")
+                logger.info(f" Processing net profit for {symbol} ({i}/{len(symbols)})")
                 results[symbol] = await self._update_net_profit_for_symbol(
                     context, browser, symbol
                 )
@@ -349,12 +349,12 @@ class QuarterlyUpdateOrchestrator:
         async with aiofiles.open(net_profit_file, 'w', encoding='utf-8') as f:
             await f.write(out_payload)
         
-        logger.info(f"💾 Updated net profit data for {symbol}")
+        logger.info(f" Updated net profit data for {symbol}")
     
     async def run_quarterly_update(self) -> Dict:
         """Run the complete quarterly update process."""
-        logger.info("🚀 Starting Quarterly Update Process")
-        logger.info(f"📅 Current: {self.current_year} {self.current_quarter}")
+        logger.info(" Starting Quarterly Update Process")
+        logger.info(f" Current: {self.current_year} {self.current_quarter}")
         
         start_time = datetime.now()
         
@@ -369,9 +369,9 @@ class QuarterlyUpdateOrchestrator:
             ownership_data = json.loads(raw_own)
             
             symbols = [item['symbol'] for item in ownership_data if item.get('symbol')]
-            logger.info(f"📋 Processing {len(symbols)} companies")
+            logger.info(f" Processing {len(symbols)} companies")
         else:
-            logger.error("❌ Cannot proceed without ownership data")
+            logger.error(" Cannot proceed without ownership data")
             return {"success": False, "error": "Ownership data update failed"}
         
         # Step 3: Update financial PDFs
@@ -401,11 +401,11 @@ class QuarterlyUpdateOrchestrator:
         async with aiofiles.open(summary_file, 'w', encoding='utf-8') as f:
             await f.write(summary_payload)
         
-        logger.info("🎉 Quarterly Update Complete!")
-        logger.info(f"⏱️  Duration: {duration}")
-        logger.info(f"📊 Companies: {len(symbols)}")
-        logger.info(f"📁 New PDFs: {summary['total_new_pdfs']}")
-        logger.info(f"📈 New Quarters: {summary['total_new_quarters']}")
+        logger.info(" Quarterly Update Complete!")
+        logger.info(f"  Duration: {duration}")
+        logger.info(f" Companies: {len(symbols)}")
+        logger.info(f" New PDFs: {summary['total_new_pdfs']}")
+        logger.info(f" New Quarters: {summary['total_new_quarters']}")
         
         return summary
 
@@ -417,12 +417,12 @@ async def main():
     result = await orchestrator.run_quarterly_update()
     
     if result["success"]:
-        print("✅ Quarterly update completed successfully!")
-        print(f"📊 Processed {result['companies_processed']} companies")
-        print(f"📁 Downloaded {result['total_new_pdfs']} new PDFs")
-        print(f"📈 Updated {result['total_new_quarters']} new quarters")
+        print(" Quarterly update completed successfully!")
+        print(f" Processed {result['companies_processed']} companies")
+        print(f" Downloaded {result['total_new_pdfs']} new PDFs")
+        print(f" Updated {result['total_new_quarters']} new quarters")
     else:
-        print("❌ Quarterly update failed!")
+        print(" Quarterly update failed!")
         print(f"Error: {result.get('error', 'Unknown error')}")
 
 if __name__ == "__main__":

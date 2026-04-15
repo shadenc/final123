@@ -631,22 +631,22 @@ def _process_one_pdf_extraction(
     result['pdf_filename'] = pdf_file.name
 
     if not result['success']:
-        print(f"  ✗ Error: {result.get('error', 'Unknown error')}")
+        print(f"   Error: {result.get('error', 'Unknown error')}")
         return result, 0
 
-    print(f"  ✓ Found: {result['value']} (Year: {result['year']})")
-    print(f"  ✓ Method: {result['method']}")
+    print(f"   Found: {result['value']} (Year: {result['year']})")
+    print(f"   Method: {result['method']}")
     try:
-        print("  📸 Generating evidence screenshot...")
+        print("   Generating evidence screenshot...")
         screenshot_path = evidence_generator.generate_highlight_screenshot(
             str(pdf_file), result['value'], company_symbol
         )
         if screenshot_path:
-            print(f"  ✓ Evidence screenshot saved: {screenshot_path}")
+            print(f"   Evidence screenshot saved: {screenshot_path}")
         else:
-            print("  ⚠️ Failed to generate evidence screenshot")
+            print("   Failed to generate evidence screenshot")
     except Exception as e:
-        print(f"  ⚠️ Error generating evidence screenshot: {e}")
+        print(f"   Error generating evidence screenshot: {e}")
     return result, 1
 
 
@@ -672,7 +672,7 @@ def main():
 
     for i, pdf_file in enumerate(pdf_files, 1):
         if _extraction_stop_requested(stop_flag_file):
-            print("🛑 Stop requested. Ending extraction loop early and saving partial results...")
+            print(" Stop requested. Ending extraction loop early and saving partial results...")
             break
         result, inc = _process_one_pdf_extraction(
             extractor, evidence_generator, pdf_file, i, len(pdf_files)

@@ -164,11 +164,11 @@ def _read_ownership_dataframe() -> pd.DataFrame:
         with open(OWNERSHIP_JSON, 'r', encoding='utf-8') as f:
             ownership_json = json.load(f)
         ownership_df = pd.DataFrame(ownership_json)
-        print(f"✅ Loaded ownership data (JSON) for {len(ownership_df)} companies")
+        print(f" Loaded ownership data (JSON) for {len(ownership_df)} companies")
         return ownership_df
     except FileNotFoundError:
         ownership_df = pd.read_csv(OWNERSHIP_CSV)
-        print(f"✅ Loaded ownership data (CSV) for {len(ownership_df)} companies")
+        print(f" Loaded ownership data (CSV) for {len(ownership_df)} companies")
         return ownership_df
 
 
@@ -190,7 +190,7 @@ def _build_net_profit_lookup(net_profit_data: List[Dict]) -> Dict:
 def _attach_quarterly_net_profit_columns(merged: pd.DataFrame) -> pd.DataFrame:
     if not QUARTERLY_NET_PROFIT_JSON.exists():
         print(
-            "⚠️ Warning: quarterly_net_profit.json not found, skipping net profit calculations"
+            " Warning: quarterly_net_profit.json not found, skipping net profit calculations"
         )
         out = merged.copy()
         out['net_profit_foreign_investor'] = 0
@@ -199,13 +199,13 @@ def _attach_quarterly_net_profit_columns(merged: pd.DataFrame) -> pd.DataFrame:
     try:
         with open(QUARTERLY_NET_PROFIT_JSON, 'r', encoding='utf-8') as f:
             net_profit_data = json.load(f)
-        print(f"✅ Loaded net profit data for {len(net_profit_data)} companies")
+        print(f" Loaded net profit data for {len(net_profit_data)} companies")
         net_profit_lookup = _build_net_profit_lookup(net_profit_data)
         result = _apply_net_profit_columns(merged, net_profit_lookup)
-        print("✅ Added net profit calculations for foreign investors")
+        print(" Added net profit calculations for foreign investors")
         return result
     except Exception as e:
-        print(f"⚠️ Warning: Error processing net profit data: {e}")
+        print(f" Warning: Error processing net profit data: {e}")
         out = merged.copy()
         out['net_profit_foreign_investor'] = 0
         out['distributed_profits_foreign_investor'] = 0
@@ -250,7 +250,7 @@ def _merge_flow_with_ownership(flow_df: pd.DataFrame, ownership_df: pd.DataFrame
 
 
 def _print_sample_flow_results(final_results: pd.DataFrame, head_n: int = 10) -> None:
-    print("\n📊 Sample Flow Results:")
+    print("\n Sample Flow Results:")
     print("=" * 80)
     for _, row in final_results.head(head_n).iterrows():
         print(f"Company: {row['company_name']} ({row['company_symbol']})")
@@ -266,9 +266,9 @@ def _print_sample_flow_results(final_results: pd.DataFrame, head_n: int = 10) ->
 
 def _save_flow_outputs(final_results: pd.DataFrame) -> None:
     final_results.to_csv(FLOW_CSV_PATH, index=False, encoding="utf-8")
-    print(f"✅ Saved flow data to {FLOW_CSV_PATH}")
+    print(f" Saved flow data to {FLOW_CSV_PATH}")
     final_results.to_json(FLOW_JSON_PATH, orient="records", force_ascii=False, indent=2)
-    print(f"✅ Saved flow data to {FLOW_JSON_PATH}")
+    print(f" Saved flow data to {FLOW_JSON_PATH}")
     compact = final_results[
         [
             'company_symbol',
@@ -282,7 +282,7 @@ def _save_flow_outputs(final_results: pd.DataFrame) -> None:
     ].copy()
     compact_json_path = _ROOT / "data/results/foreign_investor_results.json"
     compact.to_json(compact_json_path, orient='records', force_ascii=False, indent=2)
-    print(f"✅ Saved foreign investor metrics to {compact_json_path}")
+    print(f" Saved foreign investor metrics to {compact_json_path}")
 
 
 def _find_statement(statements: List[Dict], stype: str, year: int):
@@ -421,28 +421,28 @@ def calculate_retained_earnings_flow(retained_data: List[Dict]) -> List[Dict]:
 
 def main():
     """Main function to calculate retained earnings flow"""
-    print("🔄 Calculating Retained Earnings Flow (Quarterly Changes)")
+    print(" Calculating Retained Earnings Flow (Quarterly Changes)")
     print("=" * 60)
     
     # Load retained earnings data
     try:
         with open(RETAINED_RESULTS_JSON, 'r', encoding='utf-8') as f:
             retained_data = json.load(f)
-        print(f"✅ Loaded {len(retained_data)} retained earnings records")
+        print(f" Loaded {len(retained_data)} retained earnings records")
     except FileNotFoundError:
-        print("❌ Error: retained_earnings_results.json not found")
+        print(" Error: retained_earnings_results.json not found")
         print("Please run the main extraction script first")
         return
     except Exception as e:
-        print(f"❌ Error loading data: {e}")
+        print(f" Error loading data: {e}")
         return
     
     # Calculate flows
-    print("🔄 Calculating quarterly flows...")
+    print(" Calculating quarterly flows...")
     flow_results = calculate_retained_earnings_flow(retained_data)
     
     if not flow_results:
-        print("❌ No flows could be calculated")
+        print(" No flows could be calculated")
         return
     
     # Convert to DataFrame for easier manipulation
@@ -451,26 +451,26 @@ def main():
     try:
         ownership_df = _normalize_ownership_symbols(_read_ownership_dataframe())
         final_results = _merge_flow_with_ownership(flow_df, ownership_df)
-        print(f"✅ Calculated flows for {len(final_results)} company-quarters")
-        print("✅ Added foreign investor flow calculations")
+        print(f" Calculated flows for {len(final_results)} company-quarters")
+        print(" Added foreign investor flow calculations")
         _save_flow_outputs(final_results)
         _print_sample_flow_results(final_results)
     except FileNotFoundError:
-        print("⚠️ Warning: ownership data not found, saving basic flow data only")
+        print(" Warning: ownership data not found, saving basic flow data only")
         # Save basic flow data without ownership calculations
         flow_df.to_csv(FLOW_CSV_PATH, index=False, encoding="utf-8")
-        print(f"✅ Saved basic flow data to {FLOW_CSV_PATH}")
+        print(f" Saved basic flow data to {FLOW_CSV_PATH}")
         
         flow_df.to_json(FLOW_JSON_PATH, orient="records", force_ascii=False, indent=2)
-        print(f"✅ Saved basic flow data to {FLOW_JSON_PATH}")
+        print(f" Saved basic flow data to {FLOW_JSON_PATH}")
         
     except Exception as e:
-        print(f"❌ Error processing ownership data: {e}")
+        print(f" Error processing ownership data: {e}")
         # Save basic flow data as fallback
         flow_df.to_csv(FLOW_CSV_PATH, index=False, encoding="utf-8")
-        print(f"✅ Saved basic flow data to {FLOW_CSV_PATH}")
+        print(f" Saved basic flow data to {FLOW_CSV_PATH}")
     
-    print("\n🎉 Flow calculation completed successfully!") 
+    print("\n Flow calculation completed successfully!") 
 
 if __name__ == "__main__":
     main() 

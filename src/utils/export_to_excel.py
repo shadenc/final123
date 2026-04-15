@@ -141,9 +141,9 @@ def main():
         output_path = exporter.export_dashboard_table(data)
         
         if output_path:
-            print(f"✅ Excel file created: {output_path}")
+            print(f" Excel file created: {output_path}")
         else:
-            print("❌ Failed to create Excel file")
+            print(" Failed to create Excel file")
             
     except Exception as e:
         print(f"Error: {e}")

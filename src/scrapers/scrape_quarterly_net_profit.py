@@ -55,22 +55,22 @@ async def _find_statement_of_income_table(tables: List[Any]) -> Optional[Any]:
     for i, table in enumerate(tables):
         try:
             table_text = await table.text_content()
-            print(f"📊 Table {i} content preview: {table_text[:200]}...")
+            print(f" Table {i} content preview: {table_text[:200]}...")
             if "statement of income" not in table_text.lower():
                 continue
             if _table_text_has_quarterly_snippets(table_text):
-                print(f"✅ Found Statement of Income table {i} with quarterly dates")
+                print(f" Found Statement of Income table {i} with quarterly dates")
                 return table
-            print(f"📊 Found Statement of Income table {i} but it's annual data")
+            print(f" Found Statement of Income table {i} but it's annual data")
         except Exception as e:
-            print(f"⚠️  Error reading table {i}: {e}")
+            print(f"  Error reading table {i}: {e}")
 
-    print("🔍 Looking for any table with quarterly dates...")
+    print(" Looking for any table with quarterly dates...")
     for i, table in enumerate(tables):
         try:
             table_text = await table.text_content()
             if _table_text_has_quarterly_snippets(table_text):
-                print(f"✅ Found table {i} with quarterly dates")
+                print(f" Found table {i} with quarterly dates")
                 return table
         except Exception:
             continue
@@ -86,24 +86,24 @@ async def _append_iso_dates_from_cells(cells, label: str) -> List[str]:
             if text and len(text) == 10 and text.count("-") == 2:
                 out.append(text)
         except Exception as e:
-            print(f"⚠️  Error reading {label} {i}: {e}")
+            print(f"  Error reading {label} {i}: {e}")
     return out
 
 
 async def _collect_quarterly_date_strings(statement_of_income_table: Any) -> List[str]:
     header_cells = await statement_of_income_table.query_selector_all("thead tr th")
-    print(f"📅 Table headers: {len(header_cells)} cells")
+    print(f" Table headers: {len(header_cells)} cells")
     quarterly_dates = await _append_iso_dates_from_cells(header_cells, "Header")
 
     if quarterly_dates:
         return quarterly_dates
 
-    print("❌ No quarterly dates found in headers, checking table body...")
+    print(" No quarterly dates found in headers, checking table body...")
     body_rows = await statement_of_income_table.query_selector_all("tbody tr")
     if not body_rows:
         return quarterly_dates
     first_row_cells = await body_rows[0].query_selector_all("td")
-    print(f"📊 First row has {len(first_row_cells)} cells")
+    print(f" First row has {len(first_row_cells)} cells")
     quarterly_dates.extend(await _append_iso_dates_from_cells(first_row_cells, "Cell"))
     return quarterly_dates
 
@@ -129,7 +129,7 @@ def _iso_dates_to_quarter_labels(quarterly_dates: List[str]) -> List[str]:
 
 async def _find_net_profit_data_row(statement_of_income_table: Any) -> Optional[Any]:
     rows = await statement_of_income_table.query_selector_all("tbody tr")
-    print(f"🔍 Looking through {len(rows)} rows for Net Profit...")
+    print(f" Looking through {len(rows)} rows for Net Profit...")
     for i, row in enumerate(rows):
         try:
             cells = await row.query_selector_all("td")
@@ -137,19 +137,19 @@ async def _find_net_profit_data_row(statement_of_income_table: Any) -> Optional[
                 continue
             first_cell_text = (await cells[0].text_content() or "").strip().lower()
             if "net profit (loss) before zakat and tax" in first_cell_text:
-                print(f"✅ Found Net Profit row {i}: '{first_cell_text}'")
+                print(f" Found Net Profit row {i}: '{first_cell_text}'")
                 return row
             if i < 5:
                 print(f"  Row {i}: '{first_cell_text}'")
         except Exception as e:
-            print(f"⚠️  Error reading row {i}: {e}")
+            print(f"  Error reading row {i}: {e}")
     return None
 
 
 async def _extract_net_profit_by_quarters(net_profit_row: Any, quarters: List[str]) -> Dict[str, Optional[float]]:
     cells = await net_profit_row.query_selector_all("td")
     net_profit_values: Dict[str, Optional[float]] = {}
-    print(f"📊 Net Profit row has {len(cells)} cells")
+    print(f" Net Profit row has {len(cells)} cells")
     for i, quarter in enumerate(quarters):
         if i + 1 >= len(cells):
             continue
@@ -160,13 +160,13 @@ async def _extract_net_profit_by_quarters(net_profit_row: Any, quarters: List[st
             try:
                 numeric_value = float(clean_value)
                 net_profit_values[quarter] = numeric_value
-                print(f"💰 {quarter}: {numeric_value:,.0f}")
+                print(f" {quarter}: {numeric_value:,.0f}")
             except ValueError:
-                print(f"⚠️  Could not parse value for {quarter}: '{value_text}'")
+                print(f"  Could not parse value for {quarter}: '{value_text}'")
                 net_profit_values[quarter] = None
         else:
             net_profit_values[quarter] = None
-            print(f"⚠️  No value for {quarter}")
+            print(f"  No value for {quarter}")
     return net_profit_values
 
 
@@ -197,7 +197,7 @@ def get_company_symbols_from_json():
     try:
         json_path = Path("frontend/public/foreign_ownership_data.json")
         if not json_path.exists():
-            print(f"❌ JSON file not found: {json_path}")
+            print(f" JSON file not found: {json_path}")
             return []
         
         with open(json_path, 'r', encoding='utf-8') as f:
@@ -210,11 +210,11 @@ def get_company_symbols_from_json():
                 symbols = symbols[:limit]
         except Exception:
             pass
-        print(f"📋 Found {len(symbols)} company symbols from JSON file")
+        print(f" Found {len(symbols)} company symbols from JSON file")
         return symbols
         
     except Exception as e:
-        print(f"❌ Error reading JSON file: {e}")
+        print(f" Error reading JSON file: {e}")
         return []
 
 async def setup_stealth_browser():
@@ -223,7 +223,7 @@ async def setup_stealth_browser():
 
     ch = os.environ.get("PLAYWRIGHT_CHANNEL", "").strip()
     if ch:
-        print(f"🌐 Using Chromium channel: {ch}")
+        print(f" Using Chromium channel: {ch}")
 
     browser = await playwright.chromium.launch(**chromium_launch_options(_env_headless()))
     
@@ -280,7 +280,7 @@ async def navigate_to_company_profile(page: Page, symbol: str) -> bool:
     
     try:
         await page.goto(search_url, wait_until="domcontentloaded", timeout=60000)
-        print(f"🔍 Navigating to search page for symbol {symbol}")
+        print(f" Navigating to search page for symbol {symbol}")
         
         # Wait for search input and fill symbol
         await page.wait_for_selector(SEARCH_INPUT_SELECTOR, timeout=5000)
@@ -302,22 +302,22 @@ async def navigate_to_company_profile(page: Page, symbol: str) -> bool:
                 visit_links.append(link)
         
         if not visit_links:
-            print(f"❌ No 'Visit Profile' link found for symbol {symbol}")
+            print(f" No 'Visit Profile' link found for symbol {symbol}")
             return False
         
         await visit_links[0].click()
         await page.wait_for_load_state('domcontentloaded')
-        print(f"✅ Successfully navigated to profile for {symbol}")
+        print(f" Successfully navigated to profile for {symbol}")
         return True
         
     except Exception as e:
-        print(f"❌ Navigation failed for {symbol}: {e}")
+        print(f" Navigation failed for {symbol}: {e}")
         return False
 
 async def navigate_to_financial_information(page: Page, symbol: str) -> bool:
     """Navigate to FINANCIAL INFORMATION tab and click Quarterly."""
     try:
-        print(f"📊 Looking for FINANCIAL INFORMATION tab for {symbol}...")
+        print(f" Looking for FINANCIAL INFORMATION tab for {symbol}...")
 
         await page.wait_for_timeout(3000)
 
@@ -328,13 +328,13 @@ async def navigate_to_financial_information(page: Page, symbol: str) -> bool:
         await fi_tab.wait_for(state="visible", timeout=20000)
         tab_label = await fi_tab.text_content()
         tab_id = await fi_tab.get_attribute("id")
-        print(f"✅ Found FINANCIAL INFORMATION tab: '{(tab_label or '').strip()}' (ID: {tab_id})")
+        print(f" Found FINANCIAL INFORMATION tab: '{(tab_label or '').strip()}' (ID: {tab_id})")
         await fi_tab.scroll_into_view_if_needed()
         await fi_tab.click()
         await page.wait_for_timeout(2000)
-        print(f"✅ Clicked FINANCIAL INFORMATION tab for {symbol}")
+        print(f" Clicked FINANCIAL INFORMATION tab for {symbol}")
 
-        print(f"🔍 Looking for Quarterly tab for {symbol}...")
+        print(f" Looking for Quarterly tab for {symbol}...")
         await page.wait_for_timeout(2000)
 
         quarterly = page.get_by_text("Quarterly", exact=True).first
@@ -349,52 +349,52 @@ async def navigate_to_financial_information(page: Page, symbol: str) -> bool:
         await quarterly.scroll_into_view_if_needed()
         await quarterly.click()
         await page.wait_for_timeout(2000)
-        print(f"✅ Clicked Quarterly tab for {symbol}")
+        print(f" Clicked Quarterly tab for {symbol}")
 
         return True
 
     except Exception as e:
-        print(f"❌ Failed to navigate to financial information for {symbol}: {e}")
-        print("🔍 Trying to find any financial data table...")
+        print(f" Failed to navigate to financial information for {symbol}: {e}")
+        print(" Trying to find any financial data table...")
         tables = await page.query_selector_all("table")
         if tables:
-            print(f"📊 Found {len(tables)} tables, proceeding to scrape...")
+            print(f" Found {len(tables)} tables, proceeding to scrape...")
             return True
         return False
 
 async def scrape_quarterly_net_profit(page: Page, symbol: str) -> Optional[Dict]:
     """Scrape quarterly net profit data from the financial table."""
     try:
-        print(f"📈 Scraping quarterly net profit data for {symbol}...")
+        print(f" Scraping quarterly net profit data for {symbol}...")
 
         await page.wait_for_selector("table", timeout=10000)
         await page.wait_for_timeout(2000)
 
         tables = await page.query_selector_all("table")
-        print(f"🔍 Found {len(tables)} tables on the page")
+        print(f" Found {len(tables)} tables on the page")
 
         statement_of_income_table = await _find_statement_of_income_table(tables)
         if not statement_of_income_table:
-            print(f"❌ Statement of Income table not found for {symbol}")
+            print(f" Statement of Income table not found for {symbol}")
             return None
 
         quarterly_dates = await _collect_quarterly_date_strings(statement_of_income_table)
         if not quarterly_dates:
-            print(f"❌ No quarterly dates found for {symbol}")
+            print(f" No quarterly dates found for {symbol}")
             return None
 
-        print(f"📅 Found quarterly dates: {quarterly_dates}")
+        print(f" Found quarterly dates: {quarterly_dates}")
         quarters = _iso_dates_to_quarter_labels(quarterly_dates)
-        print(f"📅 Converted to quarters: {quarters}")
+        print(f" Converted to quarters: {quarters}")
 
         net_profit_row = await _find_net_profit_data_row(statement_of_income_table)
         if not net_profit_row:
-            print(f"❌ Net Profit row not found for {symbol}")
+            print(f" Net Profit row not found for {symbol}")
             return None
 
         net_profit_values = await _extract_net_profit_by_quarters(net_profit_row, quarters)
         if not net_profit_values:
-            print(f"❌ No net profit values extracted for {symbol}")
+            print(f" No net profit values extracted for {symbol}")
             return None
 
         result = {
@@ -402,11 +402,11 @@ async def scrape_quarterly_net_profit(page: Page, symbol: str) -> Optional[Dict]
             "scraped_date": datetime.now().isoformat(),
             "quarterly_net_profit": net_profit_values,
         }
-        print(f"✅ Successfully scraped quarterly net profit data for {symbol}")
+        print(f" Successfully scraped quarterly net profit data for {symbol}")
         return result
 
     except Exception as e:
-        print(f"❌ Error scraping net profit for {symbol}: {e}")
+        print(f" Error scraping net profit for {symbol}: {e}")
         import traceback
 
         traceback.print_exc()
@@ -424,9 +424,9 @@ async def _load_existing_net_profit_map() -> Dict[str, dict]:
             sym = str(item.get("company_symbol", "")).strip()
             if sym:
                 existing_map[sym] = item
-        print(f"🔄 Loaded existing net profit data for {len(existing_map)} companies to merge")
+        print(f" Loaded existing net profit data for {len(existing_map)} companies to merge")
     except Exception as e:
-        print(f"⚠️ Failed to load existing net profit file, starting fresh merge: {e}")
+        print(f" Failed to load existing net profit file, starting fresh merge: {e}")
         return {}
     return existing_map
 
@@ -439,9 +439,9 @@ async def _persist_net_profit_merge_snapshot(existing_map: dict) -> None:
         )
         async with aiofiles.open(OUTPUT_FILE, "w", encoding="utf-8") as f:
             await f.write(merge_payload)
-        print(f"💾 Incrementally updated: {OUTPUT_FILE}")
+        print(f" Incrementally updated: {OUTPUT_FILE}")
     except Exception as e:
-        print(f"⚠️ Failed to write incremental update: {e}")
+        print(f" Failed to write incremental update: {e}")
 
 
 async def _write_net_profit_progress(
@@ -502,7 +502,7 @@ async def process_company_with_retry(
         page: Optional[Page] = None
         try:
             if not browser.is_connected():
-                print(f"⚠️ Browser disconnected before {symbol}; relaunch required.")
+                print(f" Browser disconnected before {symbol}; relaunch required.")
                 return None
             page = await _open_stealth_page(context)
 
@@ -511,7 +511,7 @@ async def process_company_with_retry(
                 if await _retry_after_delay(
                     attempt,
                     max_retries,
-                    f"🔄 Retrying navigation for {symbol} (attempt {attempt + 2}/{max_retries})...",
+                    f" Retrying navigation for {symbol} (attempt {attempt + 2}/{max_retries})...",
                 ):
                     continue
                 return None
@@ -521,7 +521,7 @@ async def process_company_with_retry(
                 if await _retry_after_delay(
                     attempt,
                     max_retries,
-                    f"🔄 Retrying financial info navigation for {symbol} (attempt {attempt + 2}/{max_retries})...",
+                    f" Retrying financial info navigation for {symbol} (attempt {attempt + 2}/{max_retries})...",
                 ):
                     continue
                 return None
@@ -534,15 +534,15 @@ async def process_company_with_retry(
             if await _retry_after_delay(
                 attempt,
                 max_retries,
-                f"🔄 Retrying scraping for {symbol} (attempt {attempt + 2}/{max_retries})...",
+                f" Retrying scraping for {symbol} (attempt {attempt + 2}/{max_retries})...",
             ):
                 continue
 
         except Exception as e:
-            print(f"❌ Error processing {symbol} (attempt {attempt + 1}): {e}")
+            print(f" Error processing {symbol} (attempt {attempt + 1}): {e}")
             await _safe_close_page(page)
             if is_browser_closed_error(e):
-                print("⚠️ Browser process lost (crash/close); will relaunch before next company.")
+                print(" Browser process lost (crash/close); will relaunch before next company.")
                 return None
             if attempt < max_retries - 1:
                 await asyncio.sleep(random.uniform(2, 5))
@@ -554,10 +554,10 @@ async def scrape_all_companies_net_profit():
     companies = get_company_symbols_from_json()
 
     if not companies:
-        print("❌ No company symbols found. Please ensure foreign_ownership_data.json exists.")
+        print(" No company symbols found. Please ensure foreign_ownership_data.json exists.")
         return
 
-    print(f"📋 Found {len(companies)} companies to process")
+    print(f" Found {len(companies)} companies to process")
 
     playwright, browser, context = await setup_stealth_browser()
 
@@ -574,17 +574,17 @@ async def scrape_all_companies_net_profit():
 
         for i, symbol in enumerate(companies, 1):
             if stop_flag.exists():
-                print("🛑 Stop requested. Ending net profit scraping early.")
+                print(" Stop requested. Ending net profit scraping early.")
                 break
             print(f"\n{'='*60}")
-            print(f"📊 Processing {symbol} ({i}/{len(companies)})")
+            print(f" Processing {symbol} ({i}/{len(companies)})")
             print(f"{'='*60}")
 
             playwright, browser, context = await _recover_stealth_browser(
                 playwright,
                 browser,
                 context,
-                "♻️ Relaunching Chromium after disconnect/crash...",
+                " Relaunching Chromium after disconnect/crash...",
             )
 
             result = await process_company_with_retry(context, browser, symbol)
@@ -593,17 +593,17 @@ async def scrape_all_companies_net_profit():
                 playwright,
                 browser,
                 context,
-                "♻️ Chromium died during run; relaunching before next company...",
+                " Chromium died during run; relaunching before next company...",
             )
 
             if result:
                 success_count += 1
-                print(f"✅ Successfully processed {symbol}")
+                print(f" Successfully processed {symbol}")
                 existing_map[str(symbol)] = result
                 await _persist_net_profit_merge_snapshot(existing_map)
             else:
                 failed_count += 1
-                print(f"❌ Failed to process {symbol}")
+                print(f" Failed to process {symbol}")
             processed += 1
             await _write_net_profit_progress(
                 progress_path,
@@ -619,23 +619,23 @@ async def scrape_all_companies_net_profit():
             except Exception:
                 limit = 0
             if limit and i >= limit:
-                print(f"\n🛑 Stopping after {limit} companies as requested")
+                print(f"\n Stopping after {limit} companies as requested")
                 break
 
             if i < len(companies) and i < 10:
                 delay = random.uniform(3, 7)
-                print(f"⏳ Waiting {delay:.1f} seconds before next company...")
+                print(f" Waiting {delay:.1f} seconds before next company...")
                 await asyncio.sleep(delay)
 
         print(f"\n{'='*60}")
-        print("📊 SCRAPING SUMMARY")
+        print(" SCRAPING SUMMARY")
         print(f"{'='*60}")
-        print(f"✅ Successful: {success_count}")
-        print(f"❌ Failed: {failed_count}")
+        print(f" Successful: {success_count}")
+        print(f" Failed: {failed_count}")
         print(
-            f"📈 Success Rate: {(success_count/(success_count+failed_count)*100) if (success_count+failed_count)>0 else 0:.1f}%"
+            f" Success Rate: {(success_count/(success_count+failed_count)*100) if (success_count+failed_count)>0 else 0:.1f}%"
         )
-        print(f"💾 Data saved to: {OUTPUT_FILE}")
+        print(f" Data saved to: {OUTPUT_FILE}")
         await _write_net_profit_progress(
             progress_path,
             status="completed",
@@ -648,9 +648,9 @@ async def scrape_all_companies_net_profit():
         await teardown_playwright_bundle(playwright, browser)
 
 if __name__ == "__main__":
-    print("🚀 Starting Quarterly Net Profit Scraper...")
-    print("📊 This will scrape quarterly net profit data from Saudi Exchange")
-    print("⏳ Please ensure you have a stable internet connection")
+    print(" Starting Quarterly Net Profit Scraper...")
+    print(" This will scrape quarterly net profit data from Saudi Exchange")
+    print(" Please ensure you have a stable internet connection")
     
     # Run the scraper
     asyncio.run(scrape_all_companies_net_profit())

@@ -946,7 +946,7 @@ const InlineEditableCell = ({ value, onSave, fieldType, companySymbol, companyNa
             disabled={saving}
             sx={{ color: '#4caf50', '&:hover': { bgcolor: '#e8f5e8' } }}
           >
-            {saving ? <CircularProgress size={16} /> : '✓'}
+            {saving ? <CircularProgress size={16} /> : ''}
           </IconButton>
         </Tooltip>
         <Tooltip title="إلغاء التغيير" arrow placement="top">
@@ -955,7 +955,7 @@ const InlineEditableCell = ({ value, onSave, fieldType, companySymbol, companyNa
             onClick={handleCancel}
             sx={{ color: '#f44336', '&:hover': { bgcolor: '#ffebee' } }}
           >
-            ✕
+            
           </IconButton>
         </Tooltip>
       </Box>
@@ -1077,7 +1077,7 @@ function App() {
           setBothProgressOpen(false);
           setBothIsStopping(false);
           if (data.status === 'error') {
-            alert('❌ فشل التحديث المدمج: ' + (data.message || 'خطأ غير معروف'));
+            alert('فشل التحديث المدمج: ' + (data.message || 'خطأ غير معروف'));
           }
           setTimeout(() => {
             fetchData();
@@ -1300,23 +1300,23 @@ function App() {
 
   // Fetch archived snapshots
   useEffect(() => {
-    console.log('🔄 Fetching archived snapshots...');
+    console.log('Fetching archived snapshots...');
     setSnapshotsLoading(true);
     fetch(`${API_URL}/api/ownership_snapshots`)
       .then(res => {
-        console.log('📡 Snapshots response status:', res.status);
+        console.log('Snapshots response status:', res.status);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         return res.json();
       })
       .then(data => {
-        console.log('✅ Snapshots data received:', data);
+        console.log('Snapshots data received:', data);
         setSnapshots(data);
         setSnapshotsLoading(false);
       })
       .catch(err => {
-        console.error('❌ Error fetching snapshots:', err);
+        console.error('Error fetching snapshots:', err);
         setSnapshotsError('فشل في تحميل ملفات الفترات السابقة');
         setSnapshotsLoading(false);
       });
@@ -1324,23 +1324,23 @@ function App() {
 
   // Fetch user exports
   useEffect(() => {
-    console.log('🔄 Fetching user exports...');
+    console.log('Fetching user exports...');
     setUserExportsLoading(true);
     fetch(`${API_URL}/api/user_exports`)
       .then(res => {
-        console.log('📡 User exports response status:', res.status);
+        console.log('User exports response status:', res.status);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         return res.json();
       })
       .then(data => {
-        console.log('✅ User exports data received:', data);
+        console.log('User exports data received:', data);
         setUserExports(data);
         setUserExportsLoading(false);
       })
       .catch(err => {
-        console.error('❌ Error fetching user exports:', err);
+        console.error('Error fetching user exports:', err);
         setUserExportsError('فشل في تحميل ملفات قام المستخدم بحفظها');
         setUserExportsLoading(false);
       });
@@ -1348,23 +1348,23 @@ function App() {
 
   // Function to fetch snapshots (for refreshing after quarterly archive)
   const fetchSnapshots = () => {
-    console.log('🔄 Manual fetchSnapshots called...');
+    console.log('Manual fetchSnapshots called...');
     setSnapshotsLoading(true);
     fetch(`${API_URL}/api/ownership_snapshots`)
       .then(res => {
-        console.log('📡 Manual snapshots response status:', res.status);
+        console.log('Manual snapshots response status:', res.status);
         if (!res.ok) {
           throw new Error(`HTTP error! status: ${res.status}`);
         }
         return res.json();
       })
       .then(data => {
-        console.log('✅ Manual snapshots data received:', data);
+        console.log('Manual snapshots data received:', data);
         setSnapshots(data);
         setSnapshotsLoading(false);
       })
       .catch(err => {
-        console.error('❌ Error in manual fetchSnapshots:', err);
+        console.error('Error in manual fetchSnapshots:', err);
         setSnapshotsError('فشل في تحميل ملفات الفترات السابقة');
         setSnapshotsLoading(false);
       });
@@ -1509,23 +1509,23 @@ function App() {
         });
         
       // Show enhanced success message
-      const successMessage = `✅ تم التصدير بنجاح!\n\n📁 اسم الملف: ${filename}\n📅 التاريخ: ${customExportDate}\n🎯 الربع: ${getQuarterFromDate(customExportDate)}\n\nتم حفظ الملف في مجلد التنزيلات`;
+      const successMessage = `تم التصدير بنجاح!\n\nاسم الملف: ${filename}\nالتاريخ: ${customExportDate}\nالربع: ${getQuarterFromDate(customExportDate)}\n\nتم حفظ الملف في مجلد التنزيلات`;
       alert(successMessage);
       
     } catch (error) {
       console.error('Error exporting to Excel:', error);
       
       // Show enhanced error message
-      let errorMessage = '❌ فشل في تصدير ملف Excel\n\n';
+      let errorMessage = 'فشل في تصدير ملف Excel\n\n';
       
       if (error.message.includes('404')) {
-        errorMessage += '🔍 السبب: لم يتم العثور على البيانات المطلوبة\n💡 الحل: تأكد من وجود البيانات للربع المحدد';
+        errorMessage += 'السبب: لم يتم العثور على البيانات المطلوبة\nالحل: تأكد من وجود البيانات للربع المحدد';
       } else if (error.message.includes('500')) {
-        errorMessage += '🔧 السبب: خطأ في الخادم\n💡 الحل: حاول مرة أخرى أو اتصل بالدعم الفني';
+        errorMessage += 'السبب: خطأ في الخادم\nالحل: حاول مرة أخرى أو اتصل بالدعم الفني';
       } else if (error.message.includes('fetch')) {
-        errorMessage += '🌐 السبب: مشكلة في الاتصال\n💡 الحل: تأكد من تشغيل الخادم';
+        errorMessage += 'السبب: مشكلة في الاتصال\nالحل: تأكد من تشغيل الخادم';
       } else {
-        errorMessage += `🔍 السبب: ${error.message}\n💡 الحل: حاول مرة أخرى`;
+        errorMessage += `السبب: ${error.message}\nالحل: حاول مرة أخرى`;
       }
       
       alert(errorMessage);
@@ -1785,10 +1785,10 @@ function App() {
                           setPdfProgressOpen(true);
                           startPollPdf();
                         } else {
-                          alert('❌ لم يتم بدء العملية: ' + (data.message || ''));
+                          alert('لم يتم بدء العملية: ' + (data.message || ''));
                         }
                       } catch (e) {
-                        alert('❌ خطأ في الاتصال بالخادم: ' + e.message);
+                        alert('خطأ في الاتصال بالخادم: ' + e.message);
                       }
                     } else if (!selectPdf && selectNet) {
                       try {
@@ -1800,10 +1800,10 @@ function App() {
                           setNetProgressOpen(true);
                           startPollNet();
                         } else {
-                          alert('❌ لم يتم بدء العملية: ' + (data.message || ''));
+                          alert('لم يتم بدء العملية: ' + (data.message || ''));
                         }
                       } catch (e) {
-                        alert('❌ خطأ في الاتصال بالخادم: ' + e.message);
+                        alert('خطأ في الاتصال بالخادم: ' + e.message);
                       }
                     } else {
                       // Both: single combined Playwright pipeline (one company visit), then extract/calc
@@ -1818,10 +1818,10 @@ function App() {
                           setBothNetRunning(true);
                           startPollBothCombined();
                         } else {
-                          alert('❌ لم يتم بدء التحديث المدمج: ' + (data.message || ''));
+                          alert('لم يتم بدء التحديث المدمج: ' + (data.message || ''));
                         }
                       } catch (e) {
-                        alert('❌ خطأ في الاتصال بالخادم: ' + e.message);
+                        alert('خطأ في الاتصال بالخادم: ' + e.message);
                       } finally {
                         setSelectPdf(false);
                         setSelectNet(false);
@@ -2465,7 +2465,7 @@ function App() {
                     }}
                     size="small"
                   >
-                    ✕
+                    
                   </IconButton>
                 </Box>
               </Box>
@@ -2715,7 +2715,7 @@ function App() {
             py: 2
           }}>
             <Typography variant="body2" sx={{ color: '#495057', mb: 1.5, fontSize: 13, fontWeight: 600 }}>
-              📅 تصدير لتاريخ مخصص
+              تصدير لتاريخ مخصص
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               <TextField
@@ -2749,7 +2749,7 @@ function App() {
                   animation: 'fadeIn 0.3s ease-in-out'
                 }}>
                   <Typography variant="caption" sx={{ color: '#1e6641', fontWeight: 600, fontSize: 11 }}>
-                    🎯 الربع: {getQuarterFromDate(customExportDate)}
+                    الربع: {getQuarterFromDate(customExportDate)}
                   </Typography>
                 </Box>
               )}
@@ -2780,7 +2780,7 @@ function App() {
                 }}
                 startIcon={customExportDate ? <FileDownloadIcon /> : null}
               >
-                {customExportDate ? '📥 تصدير للتاريخ المحدد' : 'اختر تاريخ أولاً'}
+                {customExportDate ? 'تصدير للتاريخ المحدد' : 'اختر تاريخ أولاً'}
               </Button>
             </Box>
           </Box>
@@ -2795,7 +2795,7 @@ function App() {
             py: 2
           }}>
             <Typography variant="body2" sx={{ color: '#495057', mb: 1.5, fontSize: 13, fontWeight: 600 }}>
-              📝 تخصيص اسم الملف
+              تخصيص اسم الملف
             </Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
               <TextField
@@ -2815,7 +2815,7 @@ function App() {
                 }}
               />
               <Typography variant="caption" sx={{ color: '#888', fontSize: 10, fontStyle: 'italic' }}>
-                💡 سيتم إضافة التاريخ والوقت تلقائياً
+                سيتم إضافة التاريخ والوقت تلقائياً
               </Typography>
             </Box>
           </Box>
