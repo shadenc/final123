@@ -77,18 +77,23 @@ async def _find_statement_of_income_table(tables: List[Any]) -> Optional[Any]:
     return None
 
 
-async def _collect_quarterly_date_strings(statement_of_income_table: Any) -> List[str]:
-    quarterly_dates: List[str] = []
-    header_cells = await statement_of_income_table.query_selector_all("thead tr th")
-    print(f"📅 Table headers: {len(header_cells)} cells")
-    for i, cell in enumerate(header_cells):
+async def _append_iso_dates_from_cells(cells, label: str) -> List[str]:
+    out: List[str] = []
+    for i, cell in enumerate(cells):
         try:
             text = (await cell.text_content() or "").strip()
-            print(f"  Header {i}: '{text}'")
+            print(f"  {label} {i}: '{text}'")
             if text and len(text) == 10 and text.count("-") == 2:
-                quarterly_dates.append(text)
+                out.append(text)
         except Exception as e:
-            print(f"⚠️  Error reading header {i}: {e}")
+            print(f"⚠️  Error reading {label} {i}: {e}")
+    return out
+
+
+async def _collect_quarterly_date_strings(statement_of_income_table: Any) -> List[str]:
+    header_cells = await statement_of_income_table.query_selector_all("thead tr th")
+    print(f"📅 Table headers: {len(header_cells)} cells")
+    quarterly_dates = await _append_iso_dates_from_cells(header_cells, "Header")
 
     if quarterly_dates:
         return quarterly_dates
@@ -99,14 +104,7 @@ async def _collect_quarterly_date_strings(statement_of_income_table: Any) -> Lis
         return quarterly_dates
     first_row_cells = await body_rows[0].query_selector_all("td")
     print(f"📊 First row has {len(first_row_cells)} cells")
-    for i, cell in enumerate(first_row_cells):
-        try:
-            text = (await cell.text_content() or "").strip()
-            print(f"  Cell {i}: '{text}'")
-            if text and len(text) == 10 and text.count("-") == 2:
-                quarterly_dates.append(text)
-        except Exception as e:
-            print(f"⚠️  Error reading cell {i}: {e}")
+    quarterly_dates.extend(await _append_iso_dates_from_cells(first_row_cells, "Cell"))
     return quarterly_dates
 
 

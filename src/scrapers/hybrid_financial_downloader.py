@@ -530,6 +530,28 @@ async def download_pdf_with_stealth(page: Page, pdf_url: str, symbol: str, year:
         return False
 
 
+async def _ensure_pdf_pipeline_browser(playwright, browser: Browser, context: BrowserContext):
+    if browser.is_connected():
+        return playwright, browser, context
+    print("♻️ Relaunching Chromium after disconnect/crash...")
+    await teardown_playwright_bundle(playwright, browser)
+    return await setup_stealth_browser()
+
+
+async def _relaunch_pdf_browser_after_company(playwright, browser: Browser, context: BrowserContext):
+    if browser.is_connected():
+        return playwright, browser, context
+    print("♻️ Chromium died during run; relaunching before next company...")
+    await teardown_playwright_bundle(playwright, browser)
+    return await setup_stealth_browser()
+
+
+async def _pdf_retry_pause(attempt: int, max_retries: int, symbol: str) -> None:
+    if attempt < max_retries - 1:
+        print(f"🔄 Retrying {symbol} (attempt {attempt + 2}/{max_retries})...")
+        await asyncio.sleep(random.uniform(2, 5))
+
+
 async def _download_filtered_reports_with_stop(
     page: Page,
     reports: List[Tuple[str, int, str]],
@@ -553,14 +575,13 @@ async def process_company_with_retry(
     symbol: str,
     max_retries: int = 3,
 ) -> bool:
+    stop_flag_env = os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG)
     for attempt in range(max_retries):
         page: Optional[Page] = None
         try:
             if not browser.is_connected():
                 print(f"⚠️ Browser disconnected before {symbol}; relaunch required.")
                 return False
-            # Abort early if stop requested
-            stop_flag_env = os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG)
             if Path(stop_flag_env).exists():
                 print("🛑 Stop requested. Aborting company processing.")
                 return False
@@ -570,9 +591,8 @@ async def process_company_with_retry(
             reports = await get_all_financial_reports(page, symbol)
             if not reports:
                 await _safe_close_page(page)
+                await _pdf_retry_pause(attempt, max_retries, symbol)
                 if attempt < max_retries - 1:
-                    print(f"🔄 Retrying {symbol} (attempt {attempt + 2}/{max_retries})...")
-                    await asyncio.sleep(random.uniform(2, 5))
                     continue
                 return False
             all_success = await _download_filtered_reports_with_stop(
@@ -581,9 +601,7 @@ async def process_company_with_retry(
             await _safe_close_page(page)
             if all_success:
                 return True
-            elif attempt < max_retries - 1:
-                print(f"🔄 Retrying {symbol} (attempt {attempt + 2}/{max_retries})...")
-                await asyncio.sleep(random.uniform(2, 5))
+            await _pdf_retry_pause(attempt, max_retries, symbol)
         except Exception as e:
             print(f"❌ Error processing {symbol} (attempt {attempt + 1}): {e}")
             await _safe_close_page(page)
@@ -631,17 +649,15 @@ async def download_all_financial_statements():
             print(f"📊 Processing {symbol} ({i}/{len(companies)})")
             print(f"{'='*50}")
 
-            if not browser.is_connected():
-                print("♻️ Relaunching Chromium after disconnect/crash...")
-                await teardown_playwright_bundle(playwright, browser)
-                playwright, browser, context = await setup_stealth_browser()
+            playwright, browser, context = await _ensure_pdf_pipeline_browser(
+                playwright, browser, context
+            )
 
             success = await process_company_with_retry(context, browser, symbol)
 
-            if not browser.is_connected():
-                print("♻️ Chromium died during run; relaunching before next company...")
-                await teardown_playwright_bundle(playwright, browser)
-                playwright, browser, context = await setup_stealth_browser()
+            playwright, browser, context = await _relaunch_pdf_browser_after_company(
+                playwright, browser, context
+            )
             
             if success:
                 success_count += 1

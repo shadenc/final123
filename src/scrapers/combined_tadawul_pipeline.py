@@ -183,6 +183,48 @@ async def _ensure_connected_browser(
     return await setup_stealth_browser()
 
 
+async def _silent_relaunch_if_disconnected(
+    playwright,
+    browser: Browser,
+    context: BrowserContext,
+):
+    """After a company run: relaunch browser if it died (no extra console line)."""
+    if browser.is_connected():
+        return playwright, browser, context
+    await teardown_playwright_bundle(playwright, browser)
+    return await setup_stealth_browser()
+
+
+def _limit_companies_hit(iteration_index: int):
+    """Return limit N if iteration_index >= N and LIMIT_COMPANIES>0, else None."""
+    try:
+        limit = int(os.environ.get("LIMIT_COMPANIES", "0"))
+    except Exception:
+        return None
+    if limit and iteration_index >= limit:
+        return limit
+    return None
+
+
+async def _write_combined_done_files(
+    pdfs_progress: Path, net_progress: Path, payload: dict
+) -> None:
+    done_json = json.dumps(payload, ensure_ascii=False)
+    for p in (pdfs_progress, net_progress):
+        try:
+            async with aiofiles.open(p, "w", encoding="utf-8") as f:
+                await f.write(done_json)
+        except Exception:
+            pass
+
+
+async def _delay_before_next_combined_company(i: int, total: int) -> None:
+    if i < total and not _stop_requested():
+        delay = random.uniform(3, 7)
+        print(f"⏳ Waiting {delay:.1f}s before next company...")
+        await asyncio.sleep(delay)
+
+
 async def run_combined_pipeline() -> None:
     companies = get_company_symbols_from_json()
     if not companies:
@@ -238,37 +280,28 @@ async def run_combined_pipeline() -> None:
                 current_symbol=symbol,
             )
 
-            if not browser.is_connected():
-                await teardown_playwright_bundle(playwright, browser)
-                playwright, browser, context = await setup_stealth_browser()
+            playwright, browser, context = await _silent_relaunch_if_disconnected(
+                playwright, browser, context
+            )
 
-            try:
-                limit = int(os.environ.get("LIMIT_COMPANIES", "0"))
-            except Exception:
-                limit = 0
-            if limit and i >= limit:
-                print(f"\n🛑 Stopping after {limit} companies")
+            lim = _limit_companies_hit(i)
+            if lim is not None:
+                print(f"\n🛑 Stopping after {lim} companies")
                 break
 
-            if i < len(companies) and not _stop_requested():
-                delay = random.uniform(3, 7)
-                print(f"⏳ Waiting {delay:.1f}s before next company...")
-                await asyncio.sleep(delay)
+            await _delay_before_next_combined_company(i, len(companies))
 
-        done = {
-            "status": "completed",
-            "processed": processed,
-            "success": success,
-            "failed": failed,
-            "mode": "combined",
-        }
-        done_json = json.dumps(done, ensure_ascii=False)
-        for p in (pdfs_progress, net_progress):
-            try:
-                async with aiofiles.open(p, "w", encoding="utf-8") as f:
-                    await f.write(done_json)
-            except Exception:
-                pass
+        await _write_combined_done_files(
+            pdfs_progress,
+            net_progress,
+            {
+                "status": "completed",
+                "processed": processed,
+                "success": success,
+                "failed": failed,
+                "mode": "combined",
+            },
+        )
 
         print(f"\n✅ Combined pipeline finished: ok~{success} failed~{failed}")
     finally:

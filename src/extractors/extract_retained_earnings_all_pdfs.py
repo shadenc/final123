@@ -343,17 +343,25 @@ class RetainedEarningsExtractor:
             }
         return None
 
+    def _camelot_scan_retained_row(
+        self, pdf_path: str, df, row
+    ) -> Optional[Dict]:
+        if RETAINED_EARNINGS_LABEL not in str(row.iloc[0]).lower():
+            return None
+        for year in self.target_years:
+            for col_idx, col_name in enumerate(df.columns):
+                if str(year) not in str(col_name):
+                    continue
+                hit = self._camelot_numeric_hit(pdf_path, df, year, col_idx)
+                if hit:
+                    return hit
+        return None
+
     def _camelot_scan_dataframe(self, pdf_path: str, df) -> Optional[Dict]:
         for _, row in df.iterrows():
-            if RETAINED_EARNINGS_LABEL not in str(row.iloc[0]).lower():
-                continue
-            for year in self.target_years:
-                for col_idx, col_name in enumerate(df.columns):
-                    if str(year) not in str(col_name):
-                        continue
-                    hit = self._camelot_numeric_hit(pdf_path, df, year, col_idx)
-                    if hit:
-                        return hit
+            hit = self._camelot_scan_retained_row(pdf_path, df, row)
+            if hit:
+                return hit
         return None
 
     def extract_with_camelot(self, pdf_path: str) -> Optional[Dict]:

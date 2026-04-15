@@ -53,16 +53,7 @@ def _fmt_sample_currency(value, decimals: int = 2) -> str:
         return str(value)
 
 
-def _lookup_quarterly_net_profit(
-    qmap: Dict, quarter: str, year: int
-) -> Optional[float]:
-    """
-    Match frontend App.js lookupQuarterlyNetProfitValue: try focus year and ±1,
-    then newest calendar year for that quarter prefix.
-    """
-    if not qmap:
-        return None
-
+def _try_quarter_year_keys(qmap: Dict, quarter: str, year: int) -> Optional[float]:
     for y in (year, year + 1, year - 1):
         key = f"{quarter} {y}"
         if key in qmap and _net_map_value_present(qmap[key]):
@@ -70,7 +61,10 @@ def _lookup_quarterly_net_profit(
                 return float(qmap[key])
             except (TypeError, ValueError):
                 continue
+    return None
 
+
+def _best_net_profit_for_quarter_prefix(qmap: Dict, quarter: str) -> Optional[float]:
     prefix = f"{quarter} "
     best_year = -10**9
     best_val: Optional[float] = None
@@ -88,6 +82,21 @@ def _lookup_quarterly_net_profit(
             except (TypeError, ValueError):
                 continue
     return best_val
+
+
+def _lookup_quarterly_net_profit(
+    qmap: Dict, quarter: str, year: int
+) -> Optional[float]:
+    """
+    Match frontend App.js lookupQuarterlyNetProfitValue: try focus year and ±1,
+    then newest calendar year for that quarter prefix.
+    """
+    if not qmap:
+        return None
+    direct = _try_quarter_year_keys(qmap, quarter, year)
+    if direct is not None:
+        return direct
+    return _best_net_profit_for_quarter_prefix(qmap, quarter)
 
 
 def _investor_limit_fraction(val) -> float:

@@ -176,6 +176,39 @@ class QuarterlyUpdateOrchestrator:
             logger.error(f"❌ Error updating foreign ownership data: {e}")
             return False
     
+    @staticmethod
+    def _filter_new_pdf_reports(
+        reports: List[Tuple[str, int, str]], existing_quarters: Set[str]
+    ) -> List[Tuple[str, int, str]]:
+        new_reports = []
+        for stype, year, pdf_url in reports:
+            quarter_key = f"{stype}_{year}"
+            if quarter_key not in existing_quarters:
+                new_reports.append((stype, year, pdf_url))
+        return new_reports
+
+    async def _download_new_pdf_reports(
+        self,
+        page,
+        symbol: str,
+        existing_quarters: Set[str],
+        reports: List[Tuple[str, int, str]],
+    ) -> List[str]:
+        if not reports:
+            logger.warning(f"⚠️  No reports found for {symbol}")
+            return []
+        new_reports = self._filter_new_pdf_reports(reports, existing_quarters)
+        if not new_reports:
+            logger.info(f"✅ {symbol}: All PDFs already up-to-date")
+            return []
+        logger.info(f"📥 {symbol}: Downloading {len(new_reports)} new reports")
+        downloaded = []
+        for stype, year, pdf_url in new_reports:
+            success = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
+            if success:
+                downloaded.append(f"{stype}_{year}")
+        return downloaded
+
     async def update_financial_pdfs(self, symbols: List[str]) -> Dict[str, List[str]]:
         """Update financial PDFs for companies, only downloading new quarters."""
         logger.info("🔄 Updating financial PDFs...")
@@ -197,33 +230,9 @@ class QuarterlyUpdateOrchestrator:
                 page = await context.new_page()
                 try:
                     reports = await get_all_financial_reports(page, symbol)
-                    
-                    if not reports:
-                        logger.warning(f"⚠️  No reports found for {symbol}")
-                        results[symbol] = []
-                        continue
-                    
-                    # Filter for new quarters only
-                    new_reports = []
-                    for stype, year, pdf_url in reports:
-                        quarter_key = f"{stype}_{year}"
-                        if quarter_key not in existing_quarters:
-                            new_reports.append((stype, year, pdf_url))
-                    
-                    if not new_reports:
-                        logger.info(f"✅ {symbol}: All PDFs already up-to-date")
-                        results[symbol] = []
-                        continue
-                    
-                    logger.info(f"📥 {symbol}: Downloading {len(new_reports)} new reports")
-                    
-                    downloaded = []
-                    for stype, year, pdf_url in new_reports:
-                        success = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
-                        if success:
-                            downloaded.append(f"{stype}_{year}")
-                    
-                    results[symbol] = downloaded
+                    results[symbol] = await self._download_new_pdf_reports(
+                        page, symbol, existing_quarters, reports
+                    )
                 finally:
                     try:
                         await page.close()
@@ -241,6 +250,38 @@ class QuarterlyUpdateOrchestrator:
         
         return results
     
+    @staticmethod
+    def _new_net_profit_quarters(
+        quarterly_data: Dict, existing_quarters: Set[str]
+    ) -> List[str]:
+        new_quarters = []
+        for quarter, value in quarterly_data.items():
+            if quarter not in existing_quarters and value is not None:
+                new_quarters.append(quarter)
+        return new_quarters
+
+    async def _update_net_profit_for_symbol(
+        self, context, browser, symbol: str
+    ) -> List[str]:
+        existing_quarters = self._check_existing_net_profit_data(symbol)
+        logger.info(f"📁 Existing net profit data for {symbol}: {existing_quarters}")
+
+        new_data = await process_net_profit_company(context, browser, symbol)
+        if not new_data:
+            logger.warning(f"⚠️  Failed to get net profit data for {symbol}")
+            return []
+
+        new_quarters = self._new_net_profit_quarters(
+            new_data.get("quarterly_net_profit", {}), existing_quarters
+        )
+        if new_quarters:
+            logger.info(f"📈 {symbol}: New quarters: {new_quarters}")
+            await self._update_net_profit_file(symbol, new_data)
+            return new_quarters
+
+        logger.info(f"✅ {symbol}: Net profit data already up-to-date")
+        return []
+
     async def update_net_profit_data(self, symbols: List[str]) -> Dict[str, List[str]]:
         """Update net profit data for companies, only scraping new quarters."""
         logger.info("🔄 Updating net profit data...")
@@ -253,35 +294,9 @@ class QuarterlyUpdateOrchestrator:
         try:
             for i, symbol in enumerate(symbols, 1):
                 logger.info(f"📊 Processing net profit for {symbol} ({i}/{len(symbols)})")
-                
-                # Check what quarters we already have
-                existing_quarters = self._check_existing_net_profit_data(symbol)
-                logger.info(f"📁 Existing net profit data for {symbol}: {existing_quarters}")
-                
-                # Process company to get new data
-                new_data = await process_net_profit_company(context, browser, symbol)
-                
-                if new_data:
-                    # Check what's new
-                    new_quarters = []
-                    quarterly_data = new_data.get("quarterly_net_profit", {})
-                    
-                    for quarter, value in quarterly_data.items():
-                        if quarter not in existing_quarters and value is not None:
-                            new_quarters.append(quarter)
-                    
-                    if new_quarters:
-                        logger.info(f"📈 {symbol}: New quarters: {new_quarters}")
-                        
-                        # Update the existing data file
-                        await self._update_net_profit_file(symbol, new_data)
-                        results[symbol] = new_quarters
-                    else:
-                        logger.info(f"✅ {symbol}: Net profit data already up-to-date")
-                        results[symbol] = []
-                else:
-                    logger.warning(f"⚠️  Failed to get net profit data for {symbol}")
-                    results[symbol] = []
+                results[symbol] = await self._update_net_profit_for_symbol(
+                    context, browser, symbol
+                )
                 
                 # Add delay between companies
                 if i < len(symbols):
