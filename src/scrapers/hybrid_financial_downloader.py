@@ -7,8 +7,8 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
+from random import SystemRandom
 from typing import Optional, Tuple, List
-import random
 
 _ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_ROOT) not in sys.path:
@@ -37,6 +37,9 @@ PDF_DIR.mkdir(parents=True, exist_ok=True)
 SEARCH_INPUT_SELECTOR = "#query-input"
 DEFAULT_STOP_PDFS_FLAG = "data/runtime/stop_pdfs_pipeline.flag"
 DEFAULT_PDFS_PROGRESS_FILE = "data/runtime/pdfs_progress.json"
+
+# OS-backed RNG for human-like mouse jitter and delays (not for secrets/tokens).
+_HUMANIZE_RNG = SystemRandom()
 
 # Statement type priorities (most preferred first)
 STATEMENT_PRIORITIES = [
@@ -549,7 +552,7 @@ async def _relaunch_pdf_browser_after_company(playwright, browser: Browser, cont
 async def _pdf_retry_pause(attempt: int, max_retries: int, symbol: str) -> None:
     if attempt < max_retries - 1:
         print(f" Retrying {symbol} (attempt {attempt + 2}/{max_retries})...")
-        await asyncio.sleep(random.uniform(2, 5))
+        await asyncio.sleep(_HUMANIZE_RNG.uniform(2, 5))
 
 
 async def _download_filtered_reports_with_stop(
@@ -586,8 +589,10 @@ async def process_company_with_retry(
                 print(" Stop requested. Aborting company processing.")
                 return False
             page = await context.new_page()
-            await page.mouse.move(random.randint(100, 500), random.randint(100, 300))
-            await asyncio.sleep(random.uniform(0.5, 1.5))
+            await page.mouse.move(
+                _HUMANIZE_RNG.randint(100, 500), _HUMANIZE_RNG.randint(100, 300)
+            )
+            await asyncio.sleep(_HUMANIZE_RNG.uniform(0.5, 1.5))
             reports = await get_all_financial_reports(page, symbol)
             if not reports:
                 await _safe_close_page(page)
@@ -609,7 +614,7 @@ async def process_company_with_retry(
                 print(" Browser process lost (crash/close); will relaunch before next company.")
                 return False
             if attempt < max_retries - 1:
-                await asyncio.sleep(random.uniform(2, 5))
+                await asyncio.sleep(_HUMANIZE_RNG.uniform(2, 5))
     return False
 
 async def download_all_financial_statements():
@@ -686,7 +691,7 @@ async def download_all_financial_statements():
                 if stop_flag.exists():
                     print(" Stop requested. Skipping wait and ending now.")
                     break
-                delay = random.uniform(3, 7)
+                delay = _HUMANIZE_RNG.uniform(3, 7)
                 print(f" Waiting {delay:.1f} seconds before next company...")
                 await asyncio.sleep(delay)
         

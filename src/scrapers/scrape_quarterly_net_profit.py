@@ -9,10 +9,10 @@ import asyncio
 import json
 
 import aiofiles
-import random
 import re
 from datetime import datetime
 from pathlib import Path
+from random import SystemRandom
 from typing import Any, Dict, List, Optional
 
 import os
@@ -36,6 +36,9 @@ OUTPUT_DIR = Path("data/results")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 OUTPUT_FILE = OUTPUT_DIR / "quarterly_net_profit.json"
 SEARCH_INPUT_SELECTOR = "#query-input"
+
+# OS-backed RNG for human-like mouse jitter and delays (not for secrets/tokens).
+_HUMANIZE_RNG = SystemRandom()
 
 # Substrings used to detect quarterly (not annual-only) period columns on income tables
 _QUARTERLY_COLUMN_DATE_SNIPPETS = (
@@ -172,8 +175,10 @@ async def _extract_net_profit_by_quarters(net_profit_row: Any, quarters: List[st
 
 async def _open_stealth_page(context: BrowserContext) -> Page:
     page = await context.new_page()
-    await page.mouse.move(random.randint(100, 500), random.randint(100, 300))
-    await asyncio.sleep(random.uniform(0.5, 1.5))
+    await page.mouse.move(
+        _HUMANIZE_RNG.randint(100, 500), _HUMANIZE_RNG.randint(100, 300)
+    )
+    await asyncio.sleep(_HUMANIZE_RNG.uniform(0.5, 1.5))
     return page
 
 
@@ -487,7 +492,7 @@ async def _retry_after_delay(attempt: int, max_retries: int, message: str) -> bo
     if attempt >= max_retries - 1:
         return False
     print(message)
-    await asyncio.sleep(random.uniform(2, 5))
+    await asyncio.sleep(_HUMANIZE_RNG.uniform(2, 5))
     return True
 
 
@@ -545,7 +550,7 @@ async def process_company_with_retry(
                 print(" Browser process lost (crash/close); will relaunch before next company.")
                 return None
             if attempt < max_retries - 1:
-                await asyncio.sleep(random.uniform(2, 5))
+                await asyncio.sleep(_HUMANIZE_RNG.uniform(2, 5))
 
     return None
 
@@ -623,7 +628,7 @@ async def scrape_all_companies_net_profit():
                 break
 
             if i < len(companies) and i < 10:
-                delay = random.uniform(3, 7)
+                delay = _HUMANIZE_RNG.uniform(3, 7)
                 print(f" Waiting {delay:.1f} seconds before next company...")
                 await asyncio.sleep(delay)
 

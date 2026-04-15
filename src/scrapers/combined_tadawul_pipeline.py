@@ -13,8 +13,8 @@ import json
 
 import aiofiles
 import os
-import random
 import sys
+from random import SystemRandom
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -40,6 +40,9 @@ from scrape_quarterly_net_profit import (
     navigate_to_financial_information,
     scrape_quarterly_net_profit,
 )
+
+# OS-backed RNG for human-like mouse jitter and delays (not for secrets/tokens).
+_HUMANIZE_RNG = SystemRandom()
 
 
 def _stop_requested() -> bool:
@@ -113,8 +116,10 @@ async def process_company_single_visit(
             return False, None
 
         page = await context.new_page()
-        await page.mouse.move(random.randint(100, 500), random.randint(100, 300))
-        await asyncio.sleep(random.uniform(0.5, 1.5))
+        await page.mouse.move(
+            _HUMANIZE_RNG.randint(100, 500), _HUMANIZE_RNG.randint(100, 300)
+        )
+        await asyncio.sleep(_HUMANIZE_RNG.uniform(0.5, 1.5))
 
         if not await navigate_to_company_profile(page, symbol):
             return False, None
@@ -220,7 +225,7 @@ async def _write_combined_done_files(
 
 async def _delay_before_next_combined_company(i: int, total: int) -> None:
     if i < total and not _stop_requested():
-        delay = random.uniform(3, 7)
+        delay = _HUMANIZE_RNG.uniform(3, 7)
         print(f" Waiting {delay:.1f}s before next company...")
         await asyncio.sleep(delay)
 

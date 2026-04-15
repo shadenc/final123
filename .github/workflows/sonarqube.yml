@@ -24,7 +24,8 @@ jobs:
       # continue-on-error keeps CI green until you configure SonarQube / SonarCloud.
       - name: SonarQube Scan
         continue-on-error: true
-        uses: SonarSource/sonarqube-scan-action@v5
+        # Pinned to v5 (immutable SHA per githubactions:S7637); bump when upgrading the action.
+        uses: SonarSource/sonarqube-scan-action@2f77a1ec69fb1d595b06f35ab27e97605bdef703
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

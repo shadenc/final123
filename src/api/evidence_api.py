@@ -687,8 +687,16 @@ def create_app():
     from src.api.evidence_routes import EvidenceRouteContext, register_evidence_api_routes
 
     app = Flask(__name__)
+    # No Flask-WTF / CSRF middleware: plain Flask does not enable CSRF by default, and these routes
+    # are not gated by session cookies from this app (typical SPA fetch is cross-origin without
+    # credentials). CORS only controls which browser origins may read responses; deploy behind a
+    # firewall/VPN or add auth if POST /api/* must not be reachable anonymously.
     # Allow CORS from React frontend - supports both localhost and production
-    allowed_list = ALLOWED_ORIGINS.split(",") if ALLOWED_ORIGINS != "*" else "*"
+    allowed_list = (
+        [o.strip() for o in ALLOWED_ORIGINS.split(",")]
+        if ALLOWED_ORIGINS != "*"
+        else "*"
+    )
     CORS(app, origins=allowed_list)
 
     project_root = Path(__file__).parent.parent.parent.resolve()
