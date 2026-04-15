@@ -12,7 +12,7 @@ import sqlite3
 from datetime import datetime
 import openai
 import os
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 import logging
 from dotenv import load_dotenv
 
@@ -239,96 +239,136 @@ class RetainedEarningsExtractor:
         except Exception as e:
             logger.warning(f"Failed to detect units for PDF: {e}")
             return { 'unit_detected': 'unknown', 'applied_multiplier': 1 }
-    
+
+    def _spire_match_retained_column(
+        self,
+        table,
+        retained_row_index: int,
+        col_index: int,
+        page_index: int,
+        pdf_path: str,
+        year: int,
+    ) -> Optional[Dict]:
+        cell_data = table.GetText(retained_row_index, col_index).strip()
+        if str(year) not in cell_data:
+            return None
+        for row_idx in range(table.GetRowCount()):
+            value_cell = table.GetText(row_idx, col_index).strip()
+            if not value_cell or not value_cell.replace(',', '').isdigit():
+                continue
+            numeric_value = float(value_cell.replace(',', ''))
+            if numeric_value < 10000:
+                continue
+            units = self._detect_units_for_pdf(
+                pdf_path, page_num=page_index + 1, search_value=value_cell
+            )
+            scaled_value = numeric_value * units['applied_multiplier']
+            return {
+                'success': True,
+                'value': value_cell,
+                'numeric_value': scaled_value,
+                'method': 'spire_pdf',
+                'year': year,
+                'page': page_index + 1,
+                'unit_detected': units['unit_detected'],
+                'applied_multiplier': units['applied_multiplier'],
+            }
+        return None
+
+    def _spire_scan_table(self, table, page_index: int, pdf_path: str) -> Optional[Dict]:
+        for row_index in range(table.GetRowCount()):
+            first_col = table.GetText(row_index, 0).strip().lower()
+            if first_col != RETAINED_EARNINGS_LABEL:
+                continue
+            for year in self.target_years:
+                for col_index in range(table.GetColumnCount()):
+                    hit = self._spire_match_retained_column(
+                        table, row_index, col_index, page_index, pdf_path, year
+                    )
+                    if hit:
+                        return hit
+        return None
+
     def extract_with_spire_pdf(self, pdf_path: str) -> Optional[Dict]:
         """Extract using Spire.PDF if available"""
         try:
             from spire.pdf import PdfDocument, PdfTableExtractor
         except ImportError:
             return None
-        
+
         try:
             doc = PdfDocument()
             doc.LoadFromFile(pdf_path)
             extractor = PdfTableExtractor(doc)
-            
+
             for page_index in range(doc.Pages.Count):
                 tables = extractor.ExtractTable(page_index)
-                if tables:
-                    for table in tables:
-                        # Look for retained earnings row
-                        for row_index in range(table.GetRowCount()):
-                            first_col = table.GetText(row_index, 0).strip().lower()
-                            if first_col == RETAINED_EARNINGS_LABEL:
-                                # Found retained earnings row, extract values
-                                for year in self.target_years:
-                                    for col_index in range(table.GetColumnCount()):
-                                        cell_data = table.GetText(row_index, col_index).strip()
-                                        if str(year) in cell_data:
-                                            # Look for numeric value in this column
-                                            for row_idx in range(table.GetRowCount()):
-                                                value_cell = table.GetText(row_idx, col_index).strip()
-                                                if value_cell and value_cell.replace(',', '').isdigit():
-                                                    numeric_value = float(value_cell.replace(',', ''))
-                                                    if numeric_value >= 10000:
-                                                        # Detect units on the same page
-                                                        units = self._detect_units_for_pdf(pdf_path, page_num=page_index + 1, search_value=value_cell)
-                                                        scaled_value = numeric_value * units['applied_multiplier']
-                                                        doc.Close()
-                                                        return {
-                                                            'success': True,
-                                                            'value': value_cell,
-                                                            'numeric_value': scaled_value,
-                                                            'method': 'spire_pdf',
-                                                            'year': year,
-                                                            'page': page_index + 1,
-                                                            'unit_detected': units['unit_detected'],
-                                                            'applied_multiplier': units['applied_multiplier']
-                                                        }
+                if not tables:
+                    continue
+                for table in tables:
+                    hit = self._spire_scan_table(table, page_index, pdf_path)
+                    if hit:
+                        doc.Close()
+                        return hit
             doc.Close()
             return None
         except Exception as e:
             logger.error(f"Spire.PDF error: {e}")
             return None
-    
+
+    def _camelot_numeric_hit(
+        self, pdf_path: str, df, year: int, col_idx: int
+    ) -> Optional[Dict]:
+        for row_idx in range(len(df)):
+            value = df.iloc[row_idx, col_idx]
+            if not value or not str(value).replace(',', '').isdigit():
+                continue
+            numeric_value = float(str(value).replace(',', ''))
+            if numeric_value < 10000:
+                continue
+            page_num = self._find_page_for_value(pdf_path, str(value))
+            units = self._detect_units_for_pdf(
+                pdf_path, page_num=page_num, search_value=str(value)
+            )
+            scaled_value = numeric_value * units['applied_multiplier']
+            return {
+                'success': True,
+                'value': str(value),
+                'numeric_value': scaled_value,
+                'method': 'camelot',
+                'year': year,
+                'page': page_num if page_num else 1,
+                'unit_detected': units['unit_detected'],
+                'applied_multiplier': units['applied_multiplier'],
+            }
+        return None
+
+    def _camelot_scan_dataframe(self, pdf_path: str, df) -> Optional[Dict]:
+        for _, row in df.iterrows():
+            if RETAINED_EARNINGS_LABEL not in str(row.iloc[0]).lower():
+                continue
+            for year in self.target_years:
+                for col_idx, col_name in enumerate(df.columns):
+                    if str(year) not in str(col_name):
+                        continue
+                    hit = self._camelot_numeric_hit(pdf_path, df, year, col_idx)
+                    if hit:
+                        return hit
+        return None
+
     def extract_with_camelot(self, pdf_path: str) -> Optional[Dict]:
         """Extract using Camelot if available"""
         try:
             import camelot
         except ImportError:
             return None
-        
+
         try:
             tables = camelot.read_pdf(pdf_path, flavor="stream")
             for table in tables:
-                df = table.df
-                # Look for retained earnings row
-                for i, row in df.iterrows():
-                    if RETAINED_EARNINGS_LABEL in str(row.iloc[0]).lower():
-                        # Found retained earnings row, look for years
-                        for year in self.target_years:
-                            for col_idx, col_name in enumerate(df.columns):
-                                if str(year) in str(col_name):
-                                    # Look for numeric value in this column
-                                    for row_idx in range(len(df)):
-                                        value = df.iloc[row_idx, col_idx]
-                                        if value and str(value).replace(',', '').isdigit():
-                                            numeric_value = float(str(value).replace(',', ''))
-                                            if numeric_value >= 10000:
-                                                # Try to find the page for the found value and detect units
-                                                page_num = self._find_page_for_value(pdf_path, str(value))
-                                                units = self._detect_units_for_pdf(pdf_path, page_num=page_num, search_value=str(value))
-                                                scaled_value = numeric_value * units['applied_multiplier']
-                                                return {
-                                                    'success': True,
-                                                    'value': str(value),
-                                                    'numeric_value': scaled_value,
-                                                    'method': 'camelot',
-                                                    'year': year,
-                                                    'page': page_num if page_num else 1,
-                                                    'unit_detected': units['unit_detected'],
-                                                    'applied_multiplier': units['applied_multiplier']
-                                                }
+                hit = self._camelot_scan_dataframe(pdf_path, table.df)
+                if hit:
+                    return hit
             return None
         except Exception as e:
             logger.error(f"Camelot error: {e}")
@@ -343,6 +383,43 @@ class RetainedEarningsExtractor:
             return n
         except Exception:
             return 0
+
+    def _retained_hit_from_number_string(
+        self,
+        number: str,
+        pdf_path: str,
+        method: str,
+        page_override: Optional[int],
+        unit_source_text: Optional[str],
+    ) -> Optional[Dict]:
+        clean_value = number.replace(",", "")
+        if not clean_value.isdigit():
+            return None
+        numeric_value = float(clean_value)
+        if numeric_value < 10000 or numeric_value in self.target_years:
+            return None
+        page_num = (
+            page_override
+            if page_override is not None
+            else self._find_page_for_value(pdf_path, number)
+        )
+        if unit_source_text is not None:
+            units = self._detect_units_from_text(unit_source_text)
+        else:
+            units = self._detect_units_for_pdf(
+                pdf_path, page_num=page_num, search_value=number
+            )
+        scaled_value = numeric_value * units["applied_multiplier"]
+        return {
+            "success": True,
+            "value": number,
+            "numeric_value": scaled_value,
+            "method": method,
+            "year": self.most_recent_year,
+            "page": page_num if page_num else 1,
+            "unit_detected": units["unit_detected"],
+            "applied_multiplier": units["applied_multiplier"],
+        }
 
     def _find_first_retained_value_in_text(
         self,
@@ -364,32 +441,12 @@ class RetainedEarningsExtractor:
                 continue
             window_lines = lines[i : min(len(lines), i + 12)]
             window_text = "\n".join(window_lines)
-            numbers = re.findall(r"([\d,]+)", window_text)
-            for number in numbers:
-                clean_value = number.replace(",", "")
-                if not clean_value.isdigit():
-                    continue
-                numeric_value = float(clean_value)
-                if numeric_value < 10000 or numeric_value in self.target_years:
-                    continue
-                page_num = page_override if page_override is not None else self._find_page_for_value(
-                    pdf_path, number
+            for number in re.findall(r"([\d,]+)", window_text):
+                hit = self._retained_hit_from_number_string(
+                    number, pdf_path, method, page_override, unit_source_text
                 )
-                if unit_source_text is not None:
-                    units = self._detect_units_from_text(unit_source_text)
-                else:
-                    units = self._detect_units_for_pdf(pdf_path, page_num=page_num, search_value=number)
-                scaled_value = numeric_value * units["applied_multiplier"]
-                return {
-                    "success": True,
-                    "value": number,
-                    "numeric_value": scaled_value,
-                    "method": method,
-                    "year": self.most_recent_year,
-                    "page": page_num if page_num else 1,
-                    "unit_detected": units["unit_detected"],
-                    "applied_multiplier": units["applied_multiplier"],
-                }
+                if hit:
+                    return hit
         return None
 
     def extract_with_regex(self, pdf_path: str) -> Optional[Dict]:
@@ -533,72 +590,88 @@ def save_to_database(results):
     conn.commit()
     conn.close()
 
+
+def _persist_partial_retained_results(results: List) -> None:
+    try:
+        results_dir = Path("data/results")
+        results_dir.mkdir(parents=True, exist_ok=True)
+        output_file_tmp = results_dir / "retained_earnings_results.partial.json"
+        with open(output_file_tmp, 'w', encoding='utf-8') as f:
+            json.dump(results, f, indent=2, ensure_ascii=False)
+    except Exception:
+        pass
+
+
+def _extraction_stop_requested(stop_flag_file: str) -> bool:
+    try:
+        return os.path.exists(stop_flag_file)
+    except Exception:
+        return False
+
+
+def _process_one_pdf_extraction(
+    extractor: RetainedEarningsExtractor,
+    evidence_generator: EvidenceScreenshotGenerator,
+    pdf_file: Path,
+    pdf_index: int,
+    total_pdfs: int,
+) -> Tuple[Dict, int]:
+    print(f"\n[{pdf_index}/{total_pdfs}] Processing: {pdf_file.name}")
+    company_symbol = get_company_symbol_from_filename(pdf_file.name)
+    result = extractor.extract_retained_earnings(str(pdf_file))
+    result['company_symbol'] = company_symbol
+    result['pdf_filename'] = pdf_file.name
+
+    if not result['success']:
+        print(f"  ✗ Error: {result.get('error', 'Unknown error')}")
+        return result, 0
+
+    print(f"  ✓ Found: {result['value']} (Year: {result['year']})")
+    print(f"  ✓ Method: {result['method']}")
+    try:
+        print(f"  📸 Generating evidence screenshot...")
+        screenshot_path = evidence_generator.generate_highlight_screenshot(
+            str(pdf_file), result['value'], company_symbol
+        )
+        if screenshot_path:
+            print(f"  ✓ Evidence screenshot saved: {screenshot_path}")
+        else:
+            print(f"  ⚠️ Failed to generate evidence screenshot")
+    except Exception as e:
+        print(f"  ⚠️ Error generating evidence screenshot: {e}")
+    return result, 1
+
+
 def main():
     pdf_dir = Path("data/pdfs")
     pdf_files = [f for f in pdf_dir.glob("*.pdf")]
-    
+
     if not pdf_files:
         print("No PDF files found in data/pdfs/")
         return
-    
+
     print(f"Found {len(pdf_files)} PDF files to process")
-    
+
     extractor = RetainedEarningsExtractor()
     evidence_generator = EvidenceScreenshotGenerator()
     results = []
     successful_extractions = 0
-    
-    # Support graceful stop via flag file
-    stop_flag_file = os.environ.get("STOP_FLAG_FILE", str(Path("data/runtime/stop_pdfs_pipeline.flag").resolve()))
+
+    stop_flag_file = os.environ.get(
+        "STOP_FLAG_FILE",
+        str(Path("data/runtime/stop_pdfs_pipeline.flag").resolve()),
+    )
 
     for i, pdf_file in enumerate(pdf_files, 1):
-        try:
-            if os.path.exists(stop_flag_file):
-                print("🛑 Stop requested. Ending extraction loop early and saving partial results...")
-                break
-        except Exception:
-            # If any error reading stop flag, proceed safely
-            pass
-        print(f"\n[{i}/{len(pdf_files)}] Processing: {pdf_file.name}")
-        
-        company_symbol = get_company_symbol_from_filename(pdf_file.name)
-        result = extractor.extract_retained_earnings(str(pdf_file))
-        
-        # Add metadata
-        result['company_symbol'] = company_symbol
-        result['pdf_filename'] = pdf_file.name
-        
-        if result['success']:
-            successful_extractions += 1
-            print(f"  ✓ Found: {result['value']} (Year: {result['year']})")
-            print(f"  ✓ Method: {result['method']}")
-            
-            # Generate evidence screenshot
-            try:
-                print(f"  📸 Generating evidence screenshot...")
-                screenshot_path = evidence_generator.generate_highlight_screenshot(
-                    str(pdf_file), result['value'], company_symbol
-                )
-                if screenshot_path:
-                    print(f"  ✓ Evidence screenshot saved: {screenshot_path}")
-                else:
-                    print(f"  ⚠️ Failed to generate evidence screenshot")
-            except Exception as e:
-                print(f"  ⚠️ Error generating evidence screenshot: {e}")
-        else:
-            print(f"  ✗ Error: {result.get('error', 'Unknown error')}")
-        
+        if _extraction_stop_requested(stop_flag_file):
+            print("🛑 Stop requested. Ending extraction loop early and saving partial results...")
+            break
+        result, inc = _process_one_pdf_extraction(
+            extractor, evidence_generator, pdf_file, i, len(pdf_files)
+        )
+        successful_extractions += inc
         results.append(result)
-
-        # Persist partial results after each file so UI can finalize immediately on stop
-        try:
-            results_dir = Path("data/results")
-            results_dir.mkdir(parents=True, exist_ok=True)
-            output_file_tmp = results_dir / "retained_earnings_results.partial.json"
-            with open(output_file_tmp, 'w', encoding='utf-8') as f:
-                json.dump(results, f, indent=2, ensure_ascii=False)
-        except Exception:
-            pass
+        _persist_partial_retained_results(results)
     
     # Save results
     results_dir = Path("data/results")

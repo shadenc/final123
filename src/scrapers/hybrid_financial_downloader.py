@@ -318,9 +318,21 @@ _FINANCIAL_PDF_EXTRACT_JS = """
 }
 """
 
+_FETCH_PDF_BYTES_JS = """
+async () => {
+    try {
+        const response = await fetch(window.location.href);
+        const arrayBuffer = await response.arrayBuffer();
+        return Array.from(new Uint8Array(arrayBuffer));
+    } catch (error) {
+        console.error('Error fetching PDF:', error);
+        return null;
+    }
+}
+"""
 
-async def _fetch_filtered_financial_reports_from_statements_tab(page: Page, symbol: str) -> List[Tuple[str, int, str]]:
-    """Open Financial Statements and Reports tab and return filtered (stype, year, url) tuples."""
+
+async def _click_financial_statements_tab(page: Page) -> bool:
     tabs = await page.query_selector_all("li")
     try:
         target_text = "financial statements and reports"
@@ -330,22 +342,26 @@ async def _fetch_filtered_financial_reports_from_statements_tab(page: Page, symb
                 await tab.scroll_into_view_if_needed()
                 await tab.click()
                 print(f"✅ Clicked tab: {tab_text}")
-                break
-        else:
-            print("❌ 'Financial Statements and Reports' tab not found by substring.")
-            return []
+                return True
+        print("❌ 'Financial Statements and Reports' tab not found by substring.")
+        return False
     except PlaywrightTimeoutError:
         print("❌ Timeout while trying to find financial tab.")
-        return []
+        return False
+
+
+async def _wait_financial_statements_table(page: Page) -> bool:
     try:
         await page.wait_for_selector("table", timeout=10000)
         print("Table found, waiting for content to load...")
         await page.wait_for_timeout(2000)
+        return True
     except Exception as e:
         print(f"Could not find financial statements table: {e}")
-        return []
+        return False
 
-    raw = await page.evaluate(_FINANCIAL_PDF_EXTRACT_JS)
+
+def _parse_js_report_tuples(raw, symbol: str) -> List[Tuple[str, int, str]]:
     found_reports: List[Tuple[str, int, str]] = []
     for item in raw or []:
         if len(item) != 3:
@@ -353,26 +369,52 @@ async def _fetch_filtered_financial_reports_from_statements_tab(page: Page, symb
         st, yr, href = item[0], int(item[1]), item[2]
         found_reports.append((str(st).lower().strip(), yr, str(href)))
         print(f"🎯 Found {st.upper()} PDF URL for {symbol} {yr}: {href}")
+    return found_reports
+
+
+async def _maybe_debug_financial_tables(page: Page) -> None:
+    if not os.environ.get("DEBUG_PDF_TABLE"):
+        return
+    snippet = await page.evaluate(
+        "() => Array.from(document.querySelectorAll('table')).map(t => (t.innerText || '').slice(0, 400))"
+    )
+    print(f"[DEBUG_PDF_TABLE] table text snippets: {repr(snippet)[:2000]}")
+
+
+def _filter_reports_for_fiscal_year(
+    found_reports: List[Tuple[str, int, str]], symbol: str
+) -> List[Tuple[str, int, str]]:
+    filtered: List[Tuple[str, int, str]] = []
+    for stype, year, pdf_url in found_reports:
+        if year == target_year and stype in ["q1", "q2", "q3"]:
+            filtered.append((stype, year, pdf_url))
+        elif year == target_year - 1 and stype == "annual":
+            filtered.append((stype, year, pdf_url))
+    print(
+        f"[DEBUG] Will download for {symbol}: "
+        f"{[f'{stype}_{year}' for stype, year, _ in filtered]}"
+    )
+    return filtered
+
+
+async def _fetch_filtered_financial_reports_from_statements_tab(page: Page, symbol: str) -> List[Tuple[str, int, str]]:
+    """Open Financial Statements and Reports tab and return filtered (stype, year, url) tuples."""
+    if not await _click_financial_statements_tab(page):
+        return []
+    if not await _wait_financial_statements_table(page):
+        return []
+
+    raw = await page.evaluate(_FINANCIAL_PDF_EXTRACT_JS)
+    found_reports = _parse_js_report_tuples(raw, symbol)
 
     if not found_reports:
         print(
             "❌ No Annual/Q PDF rows with .pdf links found (wrong table or layout changed). "
             "Tip: run with DEBUG_PDF_TABLE=1 for table text snippets."
         )
-        if os.environ.get("DEBUG_PDF_TABLE"):
-            snippet = await page.evaluate(
-                "() => Array.from(document.querySelectorAll('table')).map(t => (t.innerText || '').slice(0, 400))"
-            )
-            print(f"[DEBUG_PDF_TABLE] table text snippets: {repr(snippet)[:2000]}")
+        await _maybe_debug_financial_tables(page)
 
-    filtered_reports = []
-    for stype, year, pdf_url in found_reports:
-        if year == target_year and stype in ["q1", "q2", "q3"]:
-            filtered_reports.append((stype, year, pdf_url))
-        elif year == target_year - 1 and stype == "annual":
-            filtered_reports.append((stype, year, pdf_url))
-    print(f"[DEBUG] Will download for {symbol}: {[f'{stype}_{year}' for stype, year, _ in filtered_reports]}")
-    return filtered_reports
+    return _filter_reports_for_fiscal_year(found_reports, symbol)
 
 
 async def get_all_financial_reports(page: Page, symbol: str, already_on_profile: bool = False):
@@ -398,12 +440,62 @@ def _pdf_url_embedded_date(pdf_url: str) -> Optional[str]:
     return m.group(1) if m else None
 
 
+def _pdf_download_stop_path() -> Path:
+    return Path(os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG))
+
+
+def _tadawul_absolute_pdf_url(pdf_url: str) -> str:
+    if pdf_url.startswith("http"):
+        return pdf_url
+    return f"https://www.saudiexchange.sa{pdf_url}"
+
+
+def _log_pdf_http_status_messages(status: int, content_type: str) -> None:
+    print(f"   PDF response HTTP {status} Content-Type: {content_type[:100]}")
+    if status == 403 or status == 401:
+        print(
+            "⚠️  Access refused by server — possible bot/WAF block, geo restriction, or session required. "
+            "Try PLAYWRIGHT_HEADLESS=0, slower delays between companies, or run from a normal network."
+        )
+    elif status == 429:
+        print("⚠️  Rate limited (HTTP 429) — increase delay between companies or retry later.")
+    elif status >= 400:
+        print(f"⚠️  Unexpected HTTP {status} when fetching PDF.")
+
+
+async def _write_pdf_bytes_from_page(
+    page: Page, pdf_path: Path, filename: str, symbol: str
+) -> bool:
+    print(f"✅ Successfully accessed PDF for {symbol}")
+    pdf_content = await page.evaluate(_FETCH_PDF_BYTES_JS)
+    if not pdf_content:
+        print(f"❌ Failed to get PDF content for {symbol}")
+        return False
+    async with aiofiles.open(pdf_path, 'wb') as f:
+        await f.write(bytes(pdf_content))
+    print(f"✅ Downloaded {filename} ({len(pdf_content)} bytes)")
+    return True
+
+
+async def _maybe_log_blocked_html_body(response) -> None:
+    if response.status != 200:
+        return
+    try:
+        snippet = (await response.text())[:600]
+        low = snippet.lower()
+        if any(
+            w in low
+            for w in ("access denied", "forbidden", "not authorized", "blocked", "captcha")
+        ):
+            print(f"⚠️  Response body looks like an error/login page: {snippet[:280]!r}")
+    except Exception:
+        pass
+
+
 async def download_pdf_with_stealth(page: Page, pdf_url: str, symbol: str, year: int, statement_type: str) -> bool:
     """Download PDF; saved filename uses Tadawul column year — see module docstring."""
     try:
-        # Respect stop flag before starting any new download
-        stop_flag_env = os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG)
-        stop_flag_path = Path(stop_flag_env)
+        stop_flag_path = _pdf_download_stop_path()
         if stop_flag_path.exists():
             print("🛑 Stop requested. Skipping new PDF download request.")
             return False
@@ -420,64 +512,40 @@ async def download_pdf_with_stealth(page: Page, pdf_url: str, symbol: str, year:
             )
         else:
             print(f"📥 Downloading {filename}… (Tadawul column year={year})")
-        if not pdf_url.startswith("http"):
-            pdf_url = f"https://www.saudiexchange.sa{pdf_url}"
+        pdf_url = _tadawul_absolute_pdf_url(pdf_url)
         response = await page.goto(pdf_url, wait_until='networkidle')
-        # Check again immediately after navigation in case stop was hit during navigation
         if stop_flag_path.exists():
             print("🛑 Stop requested after navigation. Aborting download save.")
             return False
         status = response.status
         content_type = response.headers.get('content-type', '') or ""
-        print(f"   PDF response HTTP {status} Content-Type: {content_type[:100]}")
-        if status == 403 or status == 401:
-            print(
-                "⚠️  Access refused by server — possible bot/WAF block, geo restriction, or session required. "
-                "Try PLAYWRIGHT_HEADLESS=0, slower delays between companies, or run from a normal network."
-            )
-        elif status == 429:
-            print("⚠️  Rate limited (HTTP 429) — increase delay between companies or retry later.")
-        elif status >= 400:
-            print(f"⚠️  Unexpected HTTP {status} when fetching PDF.")
+        _log_pdf_http_status_messages(status, content_type)
         if 'pdf' in content_type.lower():
-            print(f"✅ Successfully accessed PDF for {symbol}")
-            pdf_content = await page.evaluate("""
-                async () => {
-                    try {
-                        const response = await fetch(window.location.href);
-                        const arrayBuffer = await response.arrayBuffer();
-                        return Array.from(new Uint8Array(arrayBuffer));
-                    } catch (error) {
-                        console.error('Error fetching PDF:', error);
-                        return null;
-                    }
-                }
-            """)
-            if pdf_content:
-                async with aiofiles.open(pdf_path, 'wb') as f:
-                    await f.write(bytes(pdf_content))
-                print(f"✅ Downloaded {filename} ({len(pdf_content)} bytes)")
-                return True
-            else:
-                print(f"❌ Failed to get PDF content for {symbol}")
-                return False
-        else:
-            print(f"❌ Did not get PDF content for {symbol} (HTTP {status}, Content-Type: {content_type})")
-            if status == 200:
-                try:
-                    snippet = (await response.text())[:600]
-                    low = snippet.lower()
-                    if any(
-                        w in low
-                        for w in ("access denied", "forbidden", "not authorized", "blocked", "captcha")
-                    ):
-                        print(f"⚠️  Response body looks like an error/login page: {snippet[:280]!r}")
-                except Exception:
-                    pass
-            return False
+            return await _write_pdf_bytes_from_page(page, pdf_path, filename, symbol)
+        print(f"❌ Did not get PDF content for {symbol} (HTTP {status}, Content-Type: {content_type})")
+        await _maybe_log_blocked_html_body(response)
+        return False
     except Exception as e:
         print(f"❌ Download error for {symbol}: {e}")
         return False
+
+
+async def _download_filtered_reports_with_stop(
+    page: Page,
+    reports: List[Tuple[str, int, str]],
+    symbol: str,
+    stop_flag_env: str,
+) -> bool:
+    all_success = True
+    for stype, year, pdf_url in reports:
+        if Path(stop_flag_env).exists():
+            print("🛑 Stop requested. Halting further report downloads for this company.")
+            all_success = False
+            break
+        if not await download_pdf_with_stealth(page, pdf_url, symbol, year, stype):
+            all_success = False
+    return all_success
+
 
 async def process_company_with_retry(
     context: BrowserContext,
@@ -507,16 +575,9 @@ async def process_company_with_retry(
                     await asyncio.sleep(random.uniform(2, 5))
                     continue
                 return False
-            all_success = True
-            for stype, year, pdf_url in reports:
-                # Check stop flag before starting each report download
-                if Path(stop_flag_env).exists():
-                    print("🛑 Stop requested. Halting further report downloads for this company.")
-                    all_success = False
-                    break
-                success = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
-                if not success:
-                    all_success = False
+            all_success = await _download_filtered_reports_with_stop(
+                page, reports, symbol, stop_flag_env
+            )
             await _safe_close_page(page)
             if all_success:
                 return True

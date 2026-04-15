@@ -77,6 +77,26 @@ def _write_dual_progress(
         pass
 
 
+def _net_profit_has_data(net_data: Optional[Dict]) -> bool:
+    return bool(net_data and net_data.get("quarterly_net_profit"))
+
+
+async def _download_report_pdfs_for_company(
+    page: Page, symbol: str, reports: List[Tuple[str, int, str]]
+) -> bool:
+    all_ok = True
+    stop_pdf = Path(os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG))
+    for stype, year, pdf_url in reports:
+        if stop_pdf.exists():
+            print("🛑 Stop requested. Halting PDF downloads for this company.")
+            all_ok = False
+            break
+        dl_ok = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
+        if not dl_ok:
+            all_ok = False
+    return all_ok
+
+
 async def process_company_single_visit(
     context: BrowserContext,
     browser: Browser,
@@ -111,21 +131,10 @@ async def process_company_single_visit(
         reports = await get_all_financial_reports(page, symbol, already_on_profile=True)
         if not reports:
             print(f"⚠️  {symbol}: No PDF reports matched filter.")
-            has_np = bool(net_data and net_data.get("quarterly_net_profit"))
-            return has_np, net_data
+            return _net_profit_has_data(net_data), net_data
 
-        all_ok = True
-        stop_pdf = Path(os.environ.get("STOP_FLAG_FILE", DEFAULT_STOP_PDFS_FLAG))
-        for stype, year, pdf_url in reports:
-            if stop_pdf.exists():
-                print("🛑 Stop requested. Halting PDF downloads for this company.")
-                all_ok = False
-                break
-            dl_ok = await download_pdf_with_stealth(page, pdf_url, symbol, year, stype)
-            if not dl_ok:
-                all_ok = False
-
-        useful_np = bool(net_data and net_data.get("quarterly_net_profit"))
+        all_ok = await _download_report_pdfs_for_company(page, symbol, reports)
+        useful_np = _net_profit_has_data(net_data)
         return (all_ok or useful_np), net_data
     except Exception as e:
         print(f"❌ Combined processing error for {symbol}: {e}")
@@ -164,6 +173,16 @@ def _merge_net_profit_file(symbol: str, new_data: Dict) -> None:
         json.dump(existing_list, f, indent=2, ensure_ascii=False)
 
 
+async def _ensure_connected_browser(
+    playwright, browser: Browser, context: BrowserContext
+):
+    if browser.is_connected():
+        return playwright, browser, context
+    print("♻️ Relaunching browser...")
+    await teardown_playwright_bundle(playwright, browser)
+    return await setup_stealth_browser()
+
+
 async def run_combined_pipeline() -> None:
     companies = get_company_symbols_from_json()
     if not companies:
@@ -193,10 +212,9 @@ async def run_combined_pipeline() -> None:
 
             print(f"\n{'='*50}\n📊 [{i}/{len(companies)}] {symbol} (single visit)\n{'='*50}")
 
-            if not browser.is_connected():
-                print("♻️ Relaunching browser...")
-                await teardown_playwright_bundle(playwright, browser)
-                playwright, browser, context = await setup_stealth_browser()
+            playwright, browser, context = await _ensure_connected_browser(
+                playwright, browser, context
+            )
 
             ok, net_data = await process_company_single_visit(context, browser, symbol)
 

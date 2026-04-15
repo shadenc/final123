@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -38,31 +38,35 @@ import LinearProgress from '@mui/material/LinearProgress';
 // API URL configuration - supports both localhost and production
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5003';
 
+/** Trim CSV row keys/values; kept flat for shallow Papa.parse callbacks (Sonar nesting). */
+function sanitizeCsvDataRow(row) {
+  const cleanedRow = {};
+  Object.keys(row).forEach((key) => {
+    const cleanKey = key.trim();
+    cleanedRow[cleanKey] = row[key] ? row[key].trim() : '';
+  });
+  return cleanedRow;
+}
+
 /** Parse retained-earnings flow CSV; extracted to limit callback nesting (Sonar). */
 function parseQuarterlyFlowCsvText(csvText) {
   return new Promise((resolve) => {
+    const onComplete = (result) => {
+      console.log("CSV parsing result:", result);
+      if (!result.data || result.data.length === 0) {
+        console.log("No CSV data found");
+        resolve([]);
+        return;
+      }
+      const cleanedData = result.data
+        .filter((row) => row.company_symbol && row.company_symbol.trim() !== '')
+        .map(sanitizeCsvDataRow);
+      console.log("Cleaned CSV data:", cleanedData);
+      resolve(cleanedData);
+    };
     Papa.parse(csvText, {
       header: true,
-      complete: (result) => {
-        console.log("CSV parsing result:", result);
-        if (result.data && result.data.length > 0) {
-          const cleanedData = result.data
-            .filter((row) => row.company_symbol && row.company_symbol.trim() !== '')
-            .map((row) => {
-              const cleanedRow = {};
-              Object.keys(row).forEach((key) => {
-                const cleanKey = key.trim();
-                cleanedRow[cleanKey] = row[key] ? row[key].trim() : '';
-              });
-              return cleanedRow;
-            });
-          console.log("Cleaned CSV data:", cleanedData);
-          resolve(cleanedData);
-        } else {
-          console.log("No CSV data found");
-          resolve([]);
-        }
-      },
+      complete: onComplete,
       error: (error) => {
         console.error("Error parsing CSV data:", error);
         resolve([]);
@@ -77,22 +81,13 @@ function defaultDashboardFiscalYear() {
   return d.getMonth() < 4 ? d.getFullYear() - 1 : d.getFullYear();
 }
 
-/**
- * Resolve scraped net profit for the grid: keys follow statement dates ("Q1 2026") while
- * fiscal_year_focus may be 2025 — try adjacent years, then newest year for that quarter.
- */
-function lookupQuarterlyNetProfitValue(quarterlyMap, quarterFilter, focusYear) {
-  if (!quarterlyMap || typeof quarterlyMap !== 'object') return undefined;
-  const q = quarterFilter;
-  if (!q) return undefined;
-  const present = (v) => v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === '');
-  const candidates = [`${q} ${focusYear}`, `${q} ${focusYear + 1}`, `${q} ${focusYear - 1}`];
-  for (const k of candidates) {
-    if (!Object.prototype.hasOwnProperty.call(quarterlyMap, k)) continue;
-    const v = quarterlyMap[k];
-    if (present(v)) return v;
-  }
-  const prefix = `${q} `;
+function isPresentMetricValue(v) {
+  return v !== undefined && v !== null && !(typeof v === 'string' && v.trim() === '');
+}
+
+/** Newest calendar year for keys like "Q1 2026" under a "Q1 " prefix. */
+function pickNewestQuarterlyValueByPrefix(quarterlyMap, quarterLabel) {
+  const prefix = `${quarterLabel} `;
   let bestYear = -Infinity;
   let bestVal = undefined;
   for (const k of Object.keys(quarterlyMap)) {
@@ -102,10 +97,27 @@ function lookupQuarterlyNetProfitValue(quarterlyMap, quarterFilter, focusYear) {
     if (yr >= bestYear) {
       bestYear = yr;
       const v = quarterlyMap[k];
-      if (present(v)) bestVal = v;
+      if (isPresentMetricValue(v)) bestVal = v;
     }
   }
   return bestVal;
+}
+
+/**
+ * Resolve scraped net profit for the grid: keys follow statement dates ("Q1 2026") while
+ * fiscal_year_focus may be 2025 — try adjacent years, then newest year for that quarter.
+ */
+function lookupQuarterlyNetProfitValue(quarterlyMap, quarterFilter, focusYear) {
+  if (!quarterlyMap || typeof quarterlyMap !== 'object') return undefined;
+  const q = quarterFilter;
+  if (!q) return undefined;
+  const candidates = [`${q} ${focusYear}`, `${q} ${focusYear + 1}`, `${q} ${focusYear - 1}`];
+  for (const k of candidates) {
+    if (!Object.prototype.hasOwnProperty.call(quarterlyMap, k)) continue;
+    const v = quarterlyMap[k];
+    if (isPresentMetricValue(v)) return v;
+  }
+  return pickNewestQuarterlyValueByPrefix(quarterlyMap, q);
 }
 
 /** CSV/Papa: never use `x || ''` for amounts — numeric 0 is falsy and would become empty. */
@@ -189,6 +201,228 @@ function mergeOwnershipWithQuarterlyFlow(foreignOwnershipData, flowMap, onEviden
     });
   });
   return mergedData;
+}
+
+/** Grid header suffixes for previous / current quarter columns (replaces deep ternaries). */
+function quarterHeaderLabels(quarterFilter, y) {
+  const prevAnnual = y - 1;
+  if (quarterFilter === 'Q1') {
+    return { prevQuarterHeader: `${prevAnnual}Q4`, currentQuarterHeader: `${y}Q1` };
+  }
+  if (quarterFilter === 'Q2') {
+    return { prevQuarterHeader: `${y}Q1`, currentQuarterHeader: `${y}Q2` };
+  }
+  if (quarterFilter === 'Q3') {
+    return { prevQuarterHeader: `${y}Q2`, currentQuarterHeader: `${y}Q3` };
+  }
+  if (quarterFilter === 'Q4') {
+    return { prevQuarterHeader: `${y}Q3`, currentQuarterHeader: `${y}Q4` };
+  }
+  return { prevQuarterHeader: `${prevAnnual}Q4`, currentQuarterHeader: `${y}Q1` };
+}
+
+function evidenceQuarterForPreviousColumn(quarterFilter, y) {
+  const prevAnnual = y - 1;
+  if (quarterFilter === 'Q1') return `Annual_${prevAnnual}`;
+  if (quarterFilter === 'Q2') return `Q1_${y}`;
+  if (quarterFilter === 'Q3') return `Q2_${y}`;
+  return `Q3_${y}`;
+}
+
+function evidenceQuarterForCurrentColumn(quarterFilter, y) {
+  if (quarterFilter === 'Q1') return `Q1_${y}`;
+  if (quarterFilter === 'Q2') return `Q2_${y}`;
+  if (quarterFilter === 'Q3') return `Q3_${y}`;
+  return `Q4_${y}`;
+}
+
+function SarSignedAmountTypography({ raw }) {
+  if (isMetricCellMissing(raw)) {
+    return 'لايوجد';
+  }
+  const numValue = parseFloat(raw);
+  if (Number.isNaN(numValue)) {
+    return raw;
+  }
+  const isPositive = numValue >= 0;
+  const color = isPositive ? '#2e7d32' : '#d32f2f';
+  const sign = numValue === 0 ? '' : (isPositive ? '+' : '');
+  return (
+    <Typography sx={{ color, fontWeight: 'bold' }}>
+      {sign}{numValue.toLocaleString('en-US')} SAR
+    </Typography>
+  );
+}
+
+function EvidenceVisibilityButton({ onOpenEvidence, sx }) {
+  return (
+    <Tooltip title="عرض دليل الاستخراج - انقر لرؤية المستند الأصلي" arrow placement="top">
+      <IconButton
+        size="small"
+        onClick={onOpenEvidence}
+        sx={{
+          color: '#1e6641',
+          '&:hover': { bgcolor: '#e8f5ee' },
+          padding: '8px',
+          minWidth: '40px',
+          width: '40px',
+          height: '40px',
+          ...(sx || {}),
+        }}
+      >
+        <VisibilityIcon sx={{ fontSize: '16px' }} />
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+/**
+ * DataGrid column definitions (module scope lowers App() cognitive complexity / Sonar).
+ */
+function buildDashboardColumns(quarterFilter, yearFocus, netProfitData, fetchEvidenceData) {
+  const y = yearFocus;
+  const { prevQuarterHeader, currentQuarterHeader } = quarterHeaderLabels(quarterFilter, y);
+
+  const renderPreviousRetainedWithEvidence = (params) => {
+    const value = params.value;
+    if (isMetricCellMissing(value)) {
+      return 'لايوجد';
+    }
+    const numValue = parseFloat(value);
+    if (Number.isNaN(numValue)) {
+      return value;
+    }
+    const eq = evidenceQuarterForPreviousColumn(quarterFilter, y);
+    const handleOpen = (e) => {
+      e.stopPropagation();
+      fetchEvidenceData(params.row.symbol, eq);
+    };
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography>{numValue.toLocaleString('en-US')}</Typography>
+        <EvidenceVisibilityButton onOpenEvidence={handleOpen} />
+      </Box>
+    );
+  };
+
+  const renderCurrentRetainedWithEvidence = (params) => {
+    const value = params.value;
+    if (isMetricCellMissing(value)) {
+      return 'لايوجد';
+    }
+    const numValue = parseFloat(value);
+    if (Number.isNaN(numValue)) {
+      return value;
+    }
+    const eq = evidenceQuarterForCurrentColumn(quarterFilter, y);
+    const handleOpen = (e) => {
+      e.stopPropagation();
+      fetchEvidenceData(params.row.symbol, eq);
+    };
+    return (
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Typography>{numValue.toLocaleString('en-US')}</Typography>
+        <EvidenceVisibilityButton onOpenEvidence={handleOpen} />
+      </Box>
+    );
+  };
+
+  const renderNetProfitColumn = (params) => {
+    const companySymbol = params.row.company_symbol ?? params.row.symbol;
+    const key = companySymbol != null ? String(companySymbol).trim() : '';
+    const companyNetProfit = key ? netProfitData[key] : undefined;
+
+    if (companyNetProfit && companyNetProfit.quarterly_net_profit) {
+      const value = lookupQuarterlyNetProfitValue(
+        companyNetProfit.quarterly_net_profit,
+        quarterFilter,
+        y,
+      );
+      if (value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '')) {
+        return typeof value === 'number' ? value.toLocaleString('en-US') : String(value);
+      }
+    }
+    return 'لايوجد';
+  };
+
+  return [
+    { field: 'symbol', headerName: 'رمز الشركة', width: 120, align: 'right', headerAlign: 'right' },
+    { field: 'company_name', headerName: 'الشركة', width: 200, align: 'right', headerAlign: 'right' },
+    { field: 'foreign_ownership', headerName: 'ملكية جميع المستثمرين الأجانب', width: 220, align: 'right', headerAlign: 'right' },
+    { field: 'max_allowed', headerName: 'الملكية الحالية', width: 150, align: 'right', headerAlign: 'right' },
+    { field: 'investor_limit', headerName: 'ملكية المستثمر الاستراتيجي الأجنبي', width: 220, align: 'right', headerAlign: 'right' },
+    {
+      field: 'previous_quarter_value',
+      headerName: `الأرباح المبقاة للربع السابق (${prevQuarterHeader})`,
+      width: 250,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: renderPreviousRetainedWithEvidence,
+    },
+    {
+      field: 'current_quarter_value',
+      headerName: `الأرباح المبقاة للربع الحالي (${currentQuarterHeader})`,
+      width: 250,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: renderCurrentRetainedWithEvidence,
+    },
+    {
+      field: 'flow',
+      headerName: 'حجم الزيادة أو النقص في الأرباح المبقاة (التدفق)',
+      width: 280,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: (params) => <SarSignedAmountTypography raw={params.value} />,
+    },
+    {
+      field: 'foreign_investor_flow',
+      headerName: 'تدفق الأرباح المبقاة للمستثمر الأجنبي',
+      width: 250,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: (params) => <SarSignedAmountTypography raw={params.value} />,
+    },
+    {
+      field: 'net_profit',
+      headerName: 'صافي الربح',
+      width: 150,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: renderNetProfitColumn,
+    },
+    {
+      field: 'net_profit_foreign_investor',
+      headerName: 'صافي الربح للمستثمر الأجنبي',
+      width: 220,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: (params) => <SarSignedAmountTypography raw={params.value} />,
+    },
+    {
+      field: 'distributed_profits_foreign_investor',
+      headerName: 'الأرباح الموزعة للمستثمر الأجنبي',
+      width: 250,
+      align: 'right',
+      headerAlign: 'right',
+      renderCell: (params) => <SarSignedAmountTypography raw={params.value} />,
+    },
+  ];
+}
+
+function mergeCorrectionIntoRows(prevRows, updated) {
+  return prevRows.map((row) => {
+    if (row.symbol && updated.company_symbol && row.symbol.toString() === updated.company_symbol.toString()) {
+      return {
+        ...row,
+        retained_earnings: updated.retained_earnings || updated.value || '',
+        reinvested_earnings: updated.reinvested_earnings || '',
+        year: updated.year || '',
+        error: updated.error || '',
+      };
+    }
+    return row;
+  });
 }
 
 // Evidence Modal Component
@@ -856,8 +1090,7 @@ function App() {
     };
   }, [pdfPollId, netPollId]);
 
-  // Function to fetch evidence data
-  const fetchEvidenceData = async (companySymbol, quarter) => {
+  const fetchEvidenceData = useCallback(async (companySymbol, quarter) => {
     console.log(`Fetching evidence for ${companySymbol} quarter ${quarter}`);
     try {
       const response = await fetch(`${API_URL}/api/extractions/${companySymbol}?quarter=${quarter}`);
@@ -875,7 +1108,7 @@ function App() {
     } catch (error) {
       console.error('Error fetching evidence data:', error);
     }
-  };
+  }, []);
 
   // Function to handle edit value button click - Commented out since we're using inline editing
   /* const handleEditValue = (companySymbol, fieldType, currentValue, companyName) => {
@@ -1104,286 +1337,20 @@ function App() {
       });
   };
 
-  // Helper function to determine quarter from date
   const getQuarterFromDate = (dateString) => {
     if (!dateString) return '';
-    
-    try {
-      const date = new Date(dateString);
-      const month = date.getMonth() + 1; // getMonth() returns 0-11
-      const year = date.getFullYear();
-      
-      if (month >= 1 && month <= 3) return `Q1 ${year}`;
-      if (month >= 4 && month <= 6) return `Q2 ${year}`;
-      if (month >= 7 && month <= 9) return `Q3 ${year}`;
-      if (month >= 10 && month <= 12) return `Q4 ${year}`;
-      
-      return '';
-    } catch (error) {
-      return '';
-    }
+    const date = new Date(dateString);
+    if (Number.isNaN(date.getTime())) return '';
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear();
+    const q = Math.ceil(month / 3);
+    return `Q${q} ${year}`;
   };
 
-  // Define getColumns function inside the component to access state variables
-  const getColumns = (quarterFilter, yearFocus) => {
-    const y = yearFocus;
-    const prevAnnual = y - 1;
-    const prevQuarterHeader =
-      quarterFilter === 'Q1'
-        ? `${prevAnnual}Q4`
-        : quarterFilter === 'Q2'
-          ? `${y}Q1`
-          : quarterFilter === 'Q3'
-            ? `${y}Q2`
-            : quarterFilter === 'Q4'
-              ? `${y}Q3`
-              : `${prevAnnual}Q4`;
-    const currentQuarterHeader =
-      quarterFilter === 'Q1'
-        ? `${y}Q1`
-        : quarterFilter === 'Q2'
-          ? `${y}Q2`
-          : quarterFilter === 'Q3'
-            ? `${y}Q3`
-            : quarterFilter === 'Q4'
-              ? `${y}Q4`
-              : `${y}Q1`;
-    return [
-    { field: "symbol", headerName: "رمز الشركة", width: 120, align: "right", headerAlign: "right" },
-    { field: "company_name", headerName: "الشركة", width: 200, align: "right", headerAlign: "right" },
-    { field: "foreign_ownership", headerName: "ملكية جميع المستثمرين الأجانب", width: 220, align: "right", headerAlign: "right" },
-    { field: "max_allowed", headerName: "الملكية الحالية", width: 150, align: "right", headerAlign: "right" },
-    { field: "investor_limit", headerName: "ملكية المستثمر الاستراتيجي الأجنبي", width: 220, align: "right", headerAlign: "right" },
-    { 
-      field: "previous_quarter_value", 
-      headerName: `الأرباح المبقاة للربع السابق (${prevQuarterHeader})`, 
-      width: 250, 
-      align: "right", 
-      headerAlign: "right",
-      renderCell: (params) => {
-        const value = params.value;
-        if (isMetricCellMissing(value)) {
-          return "لايوجد";
-        }
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          return (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography>{numValue.toLocaleString('en-US')}</Typography>
-              <Tooltip title="عرض دليل الاستخراج - انقر لرؤية المستند الأصلي" arrow placement="top">
-                <IconButton 
-                  size="small" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    let evidenceQuarter;
-                    if (quarterFilter === "Q1") {
-                      evidenceQuarter = `Annual_${prevAnnual}`;
-                    } else if (quarterFilter === "Q2") {
-                      evidenceQuarter = `Q1_${y}`;
-                    } else if (quarterFilter === "Q3") {
-                      evidenceQuarter = `Q2_${y}`;
-                    } else {
-                      evidenceQuarter = `Q3_${y}`;
-                    }
-                    fetchEvidenceData(params.row.symbol, evidenceQuarter);
-                    setEvidenceModalOpen(true);
-                  }}
-                  sx={{ 
-                    color: '#1e6641',
-                    '&:hover': { bgcolor: '#e8f5ee' },
-                    padding: '8px',
-                    minWidth: '40px',
-                    width: '40px',
-                    height: '40px'
-                  }}
-                >
-                  <VisibilityIcon sx={{ fontSize: '16px' }} />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          );
-        }
-        return value;
-      }
-    },
-    { 
-      field: "current_quarter_value", 
-      headerName: `الأرباح المبقاة للربع الحالي (${currentQuarterHeader})`, 
-      width: 250, 
-      align: "right", 
-      headerAlign: "right",
-      renderCell: (params) => {
-        const value = params.value;
-        if (isMetricCellMissing(value)) {
-          return "لايوجد";
-        }
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          return (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography>{numValue.toLocaleString('en-US')}</Typography>
-              <Tooltip title="عرض دليل الاستخراج - انقر لرؤية المستند الأصلي" arrow placement="top">
-                <IconButton 
-                  size="small" 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    let evidenceQuarter;
-                    if (quarterFilter === "Q1") {
-                      evidenceQuarter = `Q1_${y}`;
-                    } else if (quarterFilter === "Q2") {
-                      evidenceQuarter = `Q2_${y}`;
-                    } else if (quarterFilter === "Q3") {
-                      evidenceQuarter = `Q3_${y}`;
-                    } else {
-                      evidenceQuarter = `Q4_${y}`;
-                    }
-                    fetchEvidenceData(params.row.symbol, evidenceQuarter);
-                    setEvidenceModalOpen(true);
-                  }}
-                  sx={{ 
-                    color: '#1e6641',
-                    '&:hover': { bgcolor: '#e8f5ee' },
-                    padding: '8px',
-                    minWidth: '40px',
-                    width: '40px',
-                    height: '40px'
-                  }}
-                >
-                  <VisibilityIcon sx={{ fontSize: '16px' }} />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          );
-        }
-        return value;
-      }
-    },
-    { 
-      field: "flow", 
-      headerName: "حجم الزيادة أو النقص في الأرباح المبقاة (التدفق)", 
-      width: 280, 
-      align: "right", 
-      headerAlign: "right",
-      renderCell: (params) => {
-        const value = params.value;
-        if (isMetricCellMissing(value)) {
-          return "لايوجد";
-        }
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          const isPositive = numValue >= 0;
-          const color = isPositive ? '#2e7d32' : '#d32f2f';
-          const sign = numValue === 0 ? '' : (isPositive ? '+' : '');
-          return (
-            <Typography sx={{ color, fontWeight: 'bold' }}>
-              {sign}{numValue.toLocaleString('en-US')} SAR
-            </Typography>
-          );
-        }
-        return value;
-      }
-    },
-    { 
-      field: "foreign_investor_flow", 
-      headerName: "تدفق الأرباح المبقاة للمستثمر الأجنبي", 
-      width: 250, 
-      align: "right", 
-      headerAlign: "right",
-      renderCell: (params) => {
-        const value = params.value;
-        if (isMetricCellMissing(value)) {
-          return "لايوجد";
-        }
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          const isPositive = numValue >= 0;
-          const color = isPositive ? '#2e7d32' : '#d32f2f';
-          const sign = numValue === 0 ? '' : (isPositive ? '+' : '');
-          return (
-            <Typography sx={{ color, fontWeight: 'bold' }}>
-              {sign}{numValue.toLocaleString('en-US')} SAR
-            </Typography>
-          );
-        }
-        return value;
-      }
-    },
-    { 
-      field: "net_profit",
-      headerName: "صافي الربح",
-      width: 150,
-      align: "right",
-      headerAlign: "right",
-      renderCell: (params) => {
-        const companySymbol = params.row.company_symbol ?? params.row.symbol;
-        const key = companySymbol != null ? String(companySymbol).trim() : '';
-        const companyNetProfit = key ? netProfitData[key] : undefined;
-        
-        if (companyNetProfit && companyNetProfit.quarterly_net_profit) {
-          const value = lookupQuarterlyNetProfitValue(
-            companyNetProfit.quarterly_net_profit,
-            quarterFilter,
-            y
-          );
-          if (value !== undefined && value !== null && !(typeof value === 'string' && value.trim() === '')) {
-            return typeof value === 'number' ? value.toLocaleString('en-US') : String(value);
-          }
-        }
-        return "لايوجد";
-      }
-    },
-    { 
-      field: "net_profit_foreign_investor",
-      headerName: "صافي الربح للمستثمر الأجنبي",
-      width: 220,
-      align: "right",
-      headerAlign: "right",
-      renderCell: (params) => {
-        const value = params.value;
-        if (isMetricCellMissing(value)) {
-          return "لايوجد";
-        }
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          const isPositive = numValue >= 0;
-          const color = isPositive ? '#2e7d32' : '#d32f2f';
-          const sign = numValue === 0 ? '' : (isPositive ? '+' : '');
-          return (
-            <Typography sx={{ color, fontWeight: 'bold' }}>
-              {sign}{numValue.toLocaleString('en-US')} SAR
-            </Typography>
-          );
-        }
-        return value;
-      }
-    },
-    { 
-      field: "distributed_profits_foreign_investor",
-      headerName: "الأرباح الموزعة للمستثمر الأجنبي",
-      width: 250,
-      align: "right",
-      headerAlign: "right",
-      renderCell: (params) => {
-        const value = params.value;
-        if (isMetricCellMissing(value)) {
-          return "لايوجد";
-        }
-        const numValue = parseFloat(value);
-        if (!isNaN(numValue)) {
-          const isPositive = numValue >= 0;
-          const color = isPositive ? '#2e7d32' : '#d32f2f';
-          const sign = numValue === 0 ? '' : (isPositive ? '+' : '');
-          return (
-            <Typography sx={{ color, fontWeight: 'bold' }}>
-              {sign}{numValue.toLocaleString('en-US')} SAR
-            </Typography>
-          );
-        }
-        return value;
-      }
-    }
-  ];
-  };
+  const dashboardColumns = useMemo(
+    () => buildDashboardColumns(quarterFilter, reportingYear, netProfitData, fetchEvidenceData),
+    [quarterFilter, reportingYear, netProfitData, fetchEvidenceData],
+  );
 
   useEffect(() => {
     fetchData();
@@ -1407,18 +1374,7 @@ function App() {
   // Expose row update on globalThis so nested modal handlers can invoke it without prop drilling
   useEffect(() => {
     globalThis.updateRowAfterCorrection = (updated) => {
-      setRows((prevRows) => prevRows.map(row => {
-        if (row.symbol && updated.company_symbol && row.symbol.toString() === updated.company_symbol.toString()) {
-          return {
-            ...row,
-            retained_earnings: updated.retained_earnings || updated.value || '',
-            reinvested_earnings: updated.reinvested_earnings || '',
-            year: updated.year || '',
-            error: updated.error || '',
-          };
-        }
-        return row;
-      }));
+      setRows((prevRows) => mergeCorrectionIntoRows(prevRows, updated));
     };
     return () => { globalThis.updateRowAfterCorrection = undefined; };
   }, []);
@@ -1934,7 +1890,7 @@ function App() {
         }}>
           <DataGrid
             rows={filteredRows}
-            columns={getColumns(quarterFilter, reportingYear)}
+            columns={dashboardColumns}
             pageSize={20}
             rowsPerPageOptions={[20, 50, 100]}
             disableSelectionOnClick

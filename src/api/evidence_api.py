@@ -33,6 +33,14 @@ logger = logging.getLogger(__name__)
 from src.config.reporting_period import reporting_fiscal_year
 
 
+def _append_glob_evidence_paths(screenshots_dir: Path, pattern: str, paths: list, seen: set) -> None:
+    for p in screenshots_dir.glob(pattern):
+        rp = p.resolve()
+        if rp not in seen:
+            seen.add(rp)
+            paths.append(p)
+
+
 def resolve_evidence_screenshot_paths(screenshots_dir: Path, company_symbol: str, quarter: str):
     """
     Find evidence PNGs for a company/quarter key used by the UI (e.g. Q1_2026, Annual_2025).
@@ -42,34 +50,28 @@ def resolve_evidence_screenshot_paths(screenshots_dir: Path, company_symbol: str
     paths: list = []
     seen = set()
 
-    def _add_from_glob(pattern: str) -> None:
-        for p in screenshots_dir.glob(pattern):
-            rp = p.resolve()
-            if rp not in seen:
-                seen.add(rp)
-                paths.append(p)
-
     m = re.match(r"^Q([1-4])_(\d{4})$", quarter, re.I)
     if m:
         qn, yr = m.group(1), m.group(2)
-        _add_from_glob(f"{company_symbol}_*_q{qn}_{yr}_evidence.png")
+        _append_glob_evidence_paths(screenshots_dir, f"{company_symbol}_*_q{qn}_{yr}_evidence.png", paths, seen)
         if m.group(1) == "1":
             prev = str(int(yr) - 1)
-            _add_from_glob(f"{company_symbol}_*_annual_{prev}_evidence.png")
+            _append_glob_evidence_paths(
+                screenshots_dir, f"{company_symbol}_*_annual_{prev}_evidence.png", paths, seen
+            )
         if not paths:
-            _add_from_glob(f"{company_symbol}_*_evidence.png")
+            _append_glob_evidence_paths(screenshots_dir, f"{company_symbol}_*_evidence.png", paths, seen)
         return paths
 
     m = re.match(r"^Annual_(\d{4})$", quarter, re.I)
     if m:
         yr = m.group(1)
-        _add_from_glob(f"{company_symbol}_*_annual_{yr}_evidence.png")
+        _append_glob_evidence_paths(screenshots_dir, f"{company_symbol}_*_annual_{yr}_evidence.png", paths, seen)
         if not paths:
-            _add_from_glob(f"{company_symbol}_*_evidence.png")
+            _append_glob_evidence_paths(screenshots_dir, f"{company_symbol}_*_evidence.png", paths, seen)
         return paths
 
-    # Unknown token: try generic
-    _add_from_glob(f"{company_symbol}_*_evidence.png")
+    _append_glob_evidence_paths(screenshots_dir, f"{company_symbol}_*_evidence.png", paths, seen)
     return paths
 
 
@@ -91,6 +93,60 @@ MSG_INTERNAL_ERROR = "Internal server error"
 MSG_FILE_NOT_FOUND = "File not found"
 MSG_OWNERSHIP_UPDATED_OK = "Ownership data updated successfully"
 MIME_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+# Arabic "not available" for Excel export columns (single literal for Sonar duplicate-string rule)
+DISPLAY_NONE_AR = "لايوجد"
+
+
+def _scheduler_export_quarter_labels(current_month: int, current_year: int):
+    """Return (current_quarter, previous_quarter_header, current_quarter_header) for scheduler Excel."""
+    if current_month in (1, 2, 3):
+        cq, pq = "Q1", "Q4"
+        y_for_prior = current_year - 1
+    elif current_month in (4, 5, 6):
+        cq, pq = "Q2", "Q1"
+        y_for_prior = current_year
+    elif current_month in (7, 8, 9):
+        cq, pq = "Q3", "Q2"
+        y_for_prior = current_year
+    else:
+        cq, pq = "Q4", "Q3"
+        y_for_prior = current_year
+    if cq == "Q1":
+        previous_quarter_header = f"{y_for_prior}Q4"
+    else:
+        previous_quarter_header = f"{current_year}{pq}"
+    current_quarter_header = f"{current_year}{cq}"
+    return cq, previous_quarter_header, current_quarter_header
+
+
+def _scheduler_build_flow_map_from_df(flow_data: pd.DataFrame) -> dict:
+    flow_map = {}
+    for _, row in flow_data.iterrows():
+        symbol = str(row.get("company_symbol", "")).strip()
+        quarter = str(row.get("quarter", "")).strip()
+        if not symbol or not quarter:
+            continue
+        if symbol not in flow_map:
+            flow_map[symbol] = {}
+        flow_map[symbol][quarter] = {
+            "previous_value": row.get("previous_value", ""),
+            "current_value": row.get("current_value", ""),
+            "flow": row.get("flow", ""),
+            "flow_formula": row.get("flow_formula", ""),
+            "year": row.get("year", ""),
+            "reinvested_earnings_flow": row.get("reinvested_earnings_flow", ""),
+            "net_profit_foreign_investor": row.get("net_profit_foreign_investor", ""),
+            "distributed_profits_foreign_investor": row.get("distributed_profits_foreign_investor", ""),
+        }
+    return flow_map
+
+
+def _scheduler_format_export_cell(value) -> str:
+    if value == "" or value is None:
+        return DISPLAY_NONE_AR
+    if value == 0 or (isinstance(value, str) and value.strip() == "0"):
+        return "0"
+    return value
 
 
 def run_quarterly_refresh_and_archive(project_root: Path) -> None:
@@ -153,48 +209,14 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
                         net_profit_data[symbol] = company
 
         now = datetime.now()
-        current_month = now.month
-        current_year = now.year
-
-        if current_month in [1, 2, 3]:
-            current_quarter = "Q1"
-            previous_quarter = "Q4"
-            previous_year = current_year - 1
-        elif current_month in [4, 5, 6]:
-            current_quarter = "Q2"
-            previous_quarter = "Q1"
-            previous_year = current_year
-        elif current_month in [7, 8, 9]:
-            current_quarter = "Q3"
-            previous_quarter = "Q2"
-            previous_year = current_year
-        else:
-            current_quarter = "Q4"
-            previous_quarter = "Q3"
-            previous_year = current_year
-
+        current_month, current_year = now.month, now.year
+        current_quarter, previous_quarter_header, current_quarter_header = _scheduler_export_quarter_labels(
+            current_month, current_year
+        )
         logger.info(f"[Scheduler] Current quarter: {current_quarter} {current_year}")
-        logger.info(f"[Scheduler] Previous quarter: {previous_quarter} {previous_year}")
+        logger.info(f"[Scheduler] Column headers: prev={previous_quarter_header} curr={current_quarter_header}")
 
-        flow_map = {}
-        for _, row in flow_data.iterrows():
-            symbol = str(row.get("company_symbol", "")).strip()
-            quarter = str(row.get("quarter", "")).strip()
-            if symbol and quarter:
-                if symbol not in flow_map:
-                    flow_map[symbol] = {}
-                flow_map[symbol][quarter] = {
-                    "previous_value": row.get("previous_value", ""),
-                    "current_value": row.get("current_value", ""),
-                    "flow": row.get("flow", ""),
-                    "flow_formula": row.get("flow_formula", ""),
-                    "year": row.get("year", ""),
-                    "reinvested_earnings_flow": row.get("reinvested_earnings_flow", ""),
-                    "net_profit_foreign_investor": row.get("net_profit_foreign_investor", ""),
-                    "distributed_profits_foreign_investor": row.get(
-                        "distributed_profits_foreign_investor", ""
-                    ),
-                }
+        flow_map = _scheduler_build_flow_map_from_df(flow_data)
 
         logger.info(f"[Scheduler] Exporting data for {current_quarter} {current_year}...")
 
@@ -206,25 +228,11 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
 
             quarter_data = flow_info.get(current_quarter, {})
 
-            net_profit_value = "لايوجد"
+            net_profit_value = DISPLAY_NONE_AR
             if net_profit_info and "quarterly_net_profit" in net_profit_info:
                 quarter_key = f"{current_quarter} {current_year}"
                 if quarter_key in net_profit_info["quarterly_net_profit"]:
                     net_profit_value = net_profit_info["quarterly_net_profit"][quarter_key]
-
-            if current_quarter == "Q1":
-                previous_quarter_header = f"{previous_year}Q4"
-            else:
-                previous_quarter_header = f"{current_year}{previous_quarter}"
-
-            current_quarter_header = f"{current_year}{current_quarter}"
-
-            def format_value(value):
-                if value == "" or value is None:
-                    return "لايوجد"
-                if value == 0 or (isinstance(value, str) and value.strip() == "0"):
-                    return "0"
-                return value
 
             merged_row = {
                 "رمز الشركة": symbol,
@@ -232,23 +240,23 @@ def run_quarterly_refresh_and_archive(project_root: Path) -> None:
                 "ملكية جميع المستثمرين الأجانب": ownership_row.get("foreign_ownership", ""),
                 "الملكية الحالية": ownership_row.get("max_allowed", ""),
                 "ملكية المستثمر الاستراتيجي الأجنبي": ownership_row.get("investor_limit", ""),
-                f"الأرباح المبقاة للربع السابق ({previous_quarter_header})": format_value(
+                f"الأرباح المبقاة للربع السابق ({previous_quarter_header})": _scheduler_format_export_cell(
                     quarter_data.get("previous_value", "")
                 ),
-                f"الأرباح المبقاة للربع الحالي ({current_quarter_header})": format_value(
+                f"الأرباح المبقاة للربع الحالي ({current_quarter_header})": _scheduler_format_export_cell(
                     quarter_data.get("current_value", "")
                 ),
-                "حجم الزيادة أو النقص في الأرباح المبقاة (التدفق)": format_value(
+                "حجم الزيادة أو النقص في الأرباح المبقاة (التدفق)": _scheduler_format_export_cell(
                     quarter_data.get("flow", "")
                 ),
-                "تدفق الأرباح المبقاة للمستثمر الأجنبي": format_value(
+                "تدفق الأرباح المبقاة للمستثمر الأجنبي": _scheduler_format_export_cell(
                     quarter_data.get("reinvested_earnings_flow", "")
                 ),
                 "صافي الربح": net_profit_value,
-                "صافي الربح للمستثمر الأجنبي": format_value(
+                "صافي الربح للمستثمر الأجنبي": _scheduler_format_export_cell(
                     quarter_data.get("net_profit_foreign_investor", "")
                 ),
-                "الأرباح الموزعة للمستثمر الأجنبي": format_value(
+                "الأرباح الموزعة للمستثمر الأجنبي": _scheduler_format_export_cell(
                     quarter_data.get("distributed_profits_foreign_investor", "")
                 ),
             }
@@ -322,6 +330,232 @@ def run_daily_ownership_scraper_and_recalc(project_root: Path) -> None:
             logger.error(f"[Scheduler] ❌ Recalculation failed: {e.stderr}")
     except Exception as e:
         logger.error(f"[Scheduler] ❌ Unexpected error in daily ownership job: {e}")
+
+
+def _run_pdfs_pipeline_task(project_root: Path, downloader: Path, extractor: Path) -> None:
+    try:
+        try:
+            stop_flag_file = project_root / RUNTIME_STOP_PDFS_FLAG
+            if stop_flag_file.exists():
+                stop_flag_file.unlink()
+        except Exception:
+            pass
+        try:
+            progress_path = project_root / RUNTIME_PDFS_PROGRESS_JSON
+            progress_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(progress_path, 'w', encoding='utf-8') as f:
+                json.dump({"status": "running", "processed": 0}, f)
+        except Exception:
+            pass
+        logger.info("[Pipeline] Starting hybrid downloader...")
+        env = os.environ.copy()
+        env.setdefault('STOP_FLAG_FILE', str(project_root / RUNTIME_STOP_PDFS_FLAG))
+        env.setdefault('PROGRESS_FILE', str(project_root / RUNTIME_PDFS_PROGRESS_JSON))
+        env.setdefault('PLAYWRIGHT_HEADLESS', '1')
+        env.setdefault('REPORTING_FISCAL_YEAR', str(reporting_fiscal_year()))
+        if sys.platform == 'darwin':
+            env.setdefault('PLAYWRIGHT_CHANNEL', 'chrome')
+        with _PLAYWRIGHT_SCRAPER_LOCK:
+            subprocess.run([sys.executable, str(downloader)], cwd=str(project_root), check=True, text=True, env=env)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[Pipeline] Downloader failed: {e}")
+        return
+    stop_flag_file = project_root / RUNTIME_STOP_PDFS_FLAG
+    try:
+        if stop_flag_file.exists():
+            logger.info(
+                "[Pipeline] Stop was requested during download; clearing flag and running "
+                "extract → calculate → screenshots on PDFs already saved."
+            )
+            stop_flag_file.unlink()
+    except Exception as e:
+        logger.warning(f"[Pipeline] Could not clear stop flag before extract: {e}")
+    try:
+        logger.info("[Pipeline] Starting retained earnings extractor...")
+        subprocess.run([sys.executable, str(extractor)], cwd=str(project_root), check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[Pipeline] Extractor failed: {e}")
+        return
+    try:
+        logger.info("[Pipeline] Recalculating reinvested earnings...")
+        calc = project_root / SCRIPT_CALCULATE_REINVESTED
+        subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[Pipeline] Calculation failed: {e}")
+        return
+    try:
+        logger.info("[Pipeline] Regenerating evidence screenshots...")
+        shots = project_root / SCRIPT_GENERATE_SCREENSHOTS
+        subprocess.run([sys.executable, str(shots)], cwd=str(project_root), check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"[Pipeline] Screenshot regeneration failed: {e}")
+    try:
+        progress_path = project_root / RUNTIME_PDFS_PROGRESS_JSON
+        with open(progress_path, 'w', encoding='utf-8') as f:
+            json.dump({"status": "completed"}, f)
+    except Exception:
+        pass
+    try:
+        stop_flag_file = project_root / RUNTIME_STOP_PDFS_FLAG
+        if stop_flag_file.exists():
+            stop_flag_file.unlink()
+    except Exception:
+        pass
+    logger.info("[Pipeline] ✅ Pipeline completed (download → extract → calculate → screenshots)")
+
+
+def _write_combined_progress_both(project_root: Path, payload: dict) -> None:
+    for rel in (RUNTIME_PDFS_PROGRESS_JSON, RUNTIME_NET_PROGRESS_JSON):
+        try:
+            p = project_root / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False)
+        except Exception:
+            pass
+
+
+def _run_combined_pipeline_task(project_root: Path) -> None:
+    combined_script = project_root / "src/scrapers/combined_tadawul_pipeline.py"
+    extractor = project_root / "src/extractors/extract_retained_earnings_all_pdfs.py"
+    if not combined_script.exists() or not extractor.exists():
+        logger.error("[Combined] Required script missing")
+        return
+    try:
+        for rel in (RUNTIME_STOP_PDFS_FLAG, RUNTIME_STOP_NET_FLAG):
+            p = project_root / rel
+            if p.exists():
+                p.unlink()
+    except Exception:
+        pass
+    try:
+        for rel in (RUNTIME_PDFS_PROGRESS_JSON, RUNTIME_NET_PROGRESS_JSON):
+            p = project_root / rel
+            p.parent.mkdir(parents=True, exist_ok=True)
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump({"status": "running", "processed": 0, "mode": "combined"}, f)
+    except Exception:
+        pass
+    env = os.environ.copy()
+    env.setdefault("STOP_FLAG_FILE", str(project_root / RUNTIME_STOP_PDFS_FLAG))
+    env.setdefault("STOP_FLAG_FILE_NET", str(project_root / RUNTIME_STOP_NET_FLAG))
+    env.setdefault("PROGRESS_FILE", str(project_root / RUNTIME_PDFS_PROGRESS_JSON))
+    env.setdefault("PROGRESS_FILE_NET", str(project_root / RUNTIME_NET_PROGRESS_JSON))
+    env.setdefault("PLAYWRIGHT_HEADLESS", "1")
+    env.setdefault("REPORTING_FISCAL_YEAR", str(reporting_fiscal_year()))
+    if sys.platform == "darwin":
+        env.setdefault("PLAYWRIGHT_CHANNEL", "chrome")
+    try:
+        logger.info("[Combined] Starting tadawul pipeline (one visit per company)...")
+        with _PLAYWRIGHT_SCRAPER_LOCK:
+            subprocess.run(
+                [sys.executable, str(combined_script)],
+                cwd=str(project_root),
+                check=True,
+                text=True,
+                env=env,
+            )
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[Combined] Tadawul pipeline failed: {e}")
+        _write_combined_progress_both(
+            project_root,
+            {"status": "error", "mode": "combined", "message": "tadawul_pipeline_failed"},
+        )
+        return
+
+    _write_combined_progress_both(project_root, {"status": "finalizing", "mode": "combined"})
+
+    pdf_stop = project_root / RUNTIME_STOP_PDFS_FLAG
+    net_stop = project_root / RUNTIME_STOP_NET_FLAG
+    for stop in (pdf_stop, net_stop):
+        try:
+            if stop.exists():
+                logger.info("[Combined] Clearing stop flag before extract...")
+                stop.unlink()
+        except Exception as e:
+            logger.warning(f"[Combined] Could not clear stop flag before extract: {e}")
+
+    try:
+        logger.info("[Combined] Starting retained earnings extractor...")
+        subprocess.run([sys.executable, str(extractor)], cwd=str(project_root), check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[Combined] Extractor failed: {e}")
+        _write_combined_progress_both(
+            project_root,
+            {"status": "error", "mode": "combined", "message": "extract_failed"},
+        )
+        return
+
+    try:
+        logger.info("[Combined] Recalculating reinvested earnings...")
+        calc = project_root / SCRIPT_CALCULATE_REINVESTED
+        subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[Combined] Calculation failed: {e}")
+        _write_combined_progress_both(
+            project_root,
+            {"status": "error", "mode": "combined", "message": "calculation_failed"},
+        )
+        return
+
+    try:
+        logger.info("[Combined] Regenerating evidence screenshots...")
+        shots = project_root / SCRIPT_GENERATE_SCREENSHOTS
+        subprocess.run([sys.executable, str(shots)], cwd=str(project_root), check=True, text=True)
+    except subprocess.CalledProcessError as e:
+        logger.warning(f"[Combined] Screenshot regeneration failed: {e}")
+
+    _write_combined_progress_both(project_root, {"status": "completed", "mode": "combined"})
+    try:
+        for stop in (pdf_stop, net_stop):
+            if stop.exists():
+                stop.unlink()
+    except Exception:
+        pass
+    logger.info("[Combined] Done (tadawul → extract → calculate → screenshots)")
+
+
+def _run_net_profit_background_task(project_root: Path, scraper: Path) -> None:
+    try:
+        logger.info("[NetProfit] Starting scraper...")
+        try:
+            net_stop_flag = project_root / RUNTIME_STOP_NET_FLAG
+            if net_stop_flag.exists():
+                net_stop_flag.unlink()
+        except Exception:
+            pass
+        try:
+            net_progress = project_root / RUNTIME_NET_PROGRESS_JSON
+            net_progress.parent.mkdir(parents=True, exist_ok=True)
+            with open(net_progress, 'w', encoding='utf-8') as f:
+                json.dump({"status": "running", "processed": 0}, f)
+        except Exception:
+            pass
+        env = os.environ.copy()
+        env.setdefault('STOP_FLAG_FILE', str(project_root / RUNTIME_STOP_NET_FLAG))
+        env.setdefault('PROGRESS_FILE', str(project_root / RUNTIME_NET_PROGRESS_JSON))
+        env.setdefault('PLAYWRIGHT_HEADLESS', '1')
+        if sys.platform == 'darwin':
+            env.setdefault('PLAYWRIGHT_CHANNEL', 'chrome')
+        with _PLAYWRIGHT_SCRAPER_LOCK:
+            subprocess.run([sys.executable, str(scraper)], cwd=str(project_root), check=True, text=True, env=env)
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[NetProfit] Scraper failed: {e}")
+        return
+    try:
+        logger.info("[NetProfit] Recalculating flows after net profit update...")
+        calc = project_root / SCRIPT_CALCULATE_REINVESTED
+        subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
+        logger.info("[NetProfit] ✅ Completed")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"[NetProfit] Recalculation failed: {e}")
+    finally:
+        try:
+            net_stop_flag = project_root / RUNTIME_STOP_NET_FLAG
+            if net_stop_flag.exists():
+                net_stop_flag.unlink()
+        except Exception:
+            pass
 
 
 def create_app():
@@ -647,200 +881,6 @@ def create_app():
             "screenshots_available": SCREENSHOTS_DIR.exists()
         })
 
-    def _run_pdfs_pipeline_task(project_root: Path, downloader: Path, extractor: Path):
-        try:
-            # Clear any stale stop flag from previous runs to avoid auto-stop
-            try:
-                stop_flag_file = project_root / RUNTIME_STOP_PDFS_FLAG
-                if stop_flag_file.exists():
-                    stop_flag_file.unlink()
-            except Exception:
-                pass
-            # mark progress running
-            try:
-                progress_path = project_root / RUNTIME_PDFS_PROGRESS_JSON
-                progress_path.parent.mkdir(parents=True, exist_ok=True)
-                with open(progress_path, 'w', encoding='utf-8') as f:
-                    json.dump({"status": "running", "processed": 0}, f)
-            except Exception:
-                pass
-            logger.info("[Pipeline] Starting hybrid downloader...")
-            env = os.environ.copy()
-            env.setdefault('STOP_FLAG_FILE', str(project_root / RUNTIME_STOP_PDFS_FLAG))
-            env.setdefault('PROGRESS_FILE', str(project_root / RUNTIME_PDFS_PROGRESS_JSON))
-            env.setdefault('PLAYWRIGHT_HEADLESS', '1')
-            env.setdefault('REPORTING_FISCAL_YEAR', str(reporting_fiscal_year()))
-            # Bundled Playwright Chromium often SIGSEGVs on macOS; system Chrome is more stable.
-            if sys.platform == 'darwin':
-                env.setdefault('PLAYWRIGHT_CHANNEL', 'chrome')
-            with _PLAYWRIGHT_SCRAPER_LOCK:
-                subprocess.run([sys.executable, str(downloader)], cwd=str(project_root), check=True, text=True, env=env)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"[Pipeline] Downloader failed: {e}")
-            return
-        # User may have clicked stop: downloader exited cleanly with partial downloads.
-        # Clear the stop flag before extraction — otherwise extract_retained_earnings_all_pdfs.py
-        # exits immediately on the first loop iteration and processes zero PDFs.
-        stop_flag_file = project_root / RUNTIME_STOP_PDFS_FLAG
-        try:
-            if stop_flag_file.exists():
-                logger.info(
-                    "[Pipeline] Stop was requested during download; clearing flag and running "
-                    "extract → calculate → screenshots on PDFs already saved."
-                )
-                stop_flag_file.unlink()
-        except Exception as e:
-            logger.warning(f"[Pipeline] Could not clear stop flag before extract: {e}")
-        try:
-            logger.info("[Pipeline] Starting retained earnings extractor...")
-            subprocess.run([sys.executable, str(extractor)], cwd=str(project_root), check=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"[Pipeline] Extractor failed: {e}")
-            return
-        try:
-            logger.info("[Pipeline] Recalculating reinvested earnings...")
-            calc = project_root / SCRIPT_CALCULATE_REINVESTED
-            subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"[Pipeline] Calculation failed: {e}")
-            return
-        try:
-            logger.info("[Pipeline] Regenerating evidence screenshots...")
-            shots = project_root / SCRIPT_GENERATE_SCREENSHOTS
-            subprocess.run([sys.executable, str(shots)], cwd=str(project_root), check=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"[Pipeline] Screenshot regeneration failed: {e}")
-        # mark completed
-        try:
-            progress_path = project_root / RUNTIME_PDFS_PROGRESS_JSON
-            with open(progress_path, 'w', encoding='utf-8') as f:
-                json.dump({"status": "completed"}, f)
-        except Exception:
-            pass
-        # Ensure stop flag is cleared for next runs
-        try:
-            stop_flag_file = project_root / RUNTIME_STOP_PDFS_FLAG
-            if stop_flag_file.exists():
-                stop_flag_file.unlink()
-        except Exception:
-            pass
-        logger.info("[Pipeline] ✅ Pipeline completed (download → extract → calculate → screenshots)")
-
-    def _write_combined_progress_both(project_root: Path, payload: dict) -> None:
-        """Mirror progress to PDF + net paths (combined pipeline uses both)."""
-        for rel in (RUNTIME_PDFS_PROGRESS_JSON, RUNTIME_NET_PROGRESS_JSON):
-            try:
-                p = project_root / rel
-                p.parent.mkdir(parents=True, exist_ok=True)
-                with open(p, "w", encoding="utf-8") as f:
-                    json.dump(payload, f, ensure_ascii=False)
-            except Exception:
-                pass
-
-    def _run_combined_pipeline_task(project_root: Path) -> None:
-        """
-        One Playwright run: combined_tadawul_pipeline (net profit + PDFs per company), then
-        extract → calculate → screenshots (same tail as PDF-only pipeline).
-        """
-        combined_script = project_root / "src/scrapers/combined_tadawul_pipeline.py"
-        extractor = project_root / "src/extractors/extract_retained_earnings_all_pdfs.py"
-        if not combined_script.exists() or not extractor.exists():
-            logger.error("[Combined] Required script missing")
-            return
-        try:
-            for rel in (RUNTIME_STOP_PDFS_FLAG, RUNTIME_STOP_NET_FLAG):
-                p = project_root / rel
-                if p.exists():
-                    p.unlink()
-        except Exception:
-            pass
-        try:
-            for rel in (RUNTIME_PDFS_PROGRESS_JSON, RUNTIME_NET_PROGRESS_JSON):
-                p = project_root / rel
-                p.parent.mkdir(parents=True, exist_ok=True)
-                with open(p, "w", encoding="utf-8") as f:
-                    json.dump({"status": "running", "processed": 0, "mode": "combined"}, f)
-        except Exception:
-            pass
-        env = os.environ.copy()
-        env.setdefault("STOP_FLAG_FILE", str(project_root / RUNTIME_STOP_PDFS_FLAG))
-        env.setdefault("STOP_FLAG_FILE_NET", str(project_root / RUNTIME_STOP_NET_FLAG))
-        env.setdefault("PROGRESS_FILE", str(project_root / RUNTIME_PDFS_PROGRESS_JSON))
-        env.setdefault("PROGRESS_FILE_NET", str(project_root / RUNTIME_NET_PROGRESS_JSON))
-        env.setdefault("PLAYWRIGHT_HEADLESS", "1")
-        env.setdefault("REPORTING_FISCAL_YEAR", str(reporting_fiscal_year()))
-        if sys.platform == "darwin":
-            env.setdefault("PLAYWRIGHT_CHANNEL", "chrome")
-        try:
-            logger.info("[Combined] Starting tadawul pipeline (one visit per company)...")
-            with _PLAYWRIGHT_SCRAPER_LOCK:
-                subprocess.run(
-                    [sys.executable, str(combined_script)],
-                    cwd=str(project_root),
-                    check=True,
-                    text=True,
-                    env=env,
-                )
-        except subprocess.CalledProcessError as e:
-            logger.error(f"[Combined] Tadawul pipeline failed: {e}")
-            _write_combined_progress_both(
-                project_root,
-                {"status": "error", "mode": "combined", "message": "tadawul_pipeline_failed"},
-            )
-            return
-
-        # Combined script may have written status=completed; keep UI open until extract finishes.
-        _write_combined_progress_both(project_root, {"status": "finalizing", "mode": "combined"})
-
-        pdf_stop = project_root / RUNTIME_STOP_PDFS_FLAG
-        net_stop = project_root / RUNTIME_STOP_NET_FLAG
-        for stop in (pdf_stop, net_stop):
-            try:
-                if stop.exists():
-                    logger.info("[Combined] Clearing stop flag before extract...")
-                    stop.unlink()
-            except Exception as e:
-                logger.warning(f"[Combined] Could not clear stop flag before extract: {e}")
-
-        try:
-            logger.info("[Combined] Starting retained earnings extractor...")
-            subprocess.run([sys.executable, str(extractor)], cwd=str(project_root), check=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"[Combined] Extractor failed: {e}")
-            _write_combined_progress_both(
-                project_root,
-                {"status": "error", "mode": "combined", "message": "extract_failed"},
-            )
-            return
-
-        try:
-            logger.info("[Combined] Recalculating reinvested earnings...")
-            calc = project_root / SCRIPT_CALCULATE_REINVESTED
-            subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.error(f"[Combined] Calculation failed: {e}")
-            _write_combined_progress_both(
-                project_root,
-                {"status": "error", "mode": "combined", "message": "calculation_failed"},
-            )
-            return
-
-        try:
-            logger.info("[Combined] Regenerating evidence screenshots...")
-            shots = project_root / SCRIPT_GENERATE_SCREENSHOTS
-            subprocess.run([sys.executable, str(shots)], cwd=str(project_root), check=True, text=True)
-        except subprocess.CalledProcessError as e:
-            logger.warning(f"[Combined] Screenshot regeneration failed: {e}")
-
-        _write_combined_progress_both(project_root, {"status": "completed", "mode": "combined"})
-        try:
-            for stop in (pdf_stop, net_stop):
-                if stop.exists():
-                    stop.unlink()
-        except Exception:
-            pass
-        logger.info("[Combined] Done (tadawul → extract → calculate → screenshots)")
-
     @app.route('/api/run_pdfs_pipeline', methods=['POST'])
     def run_pdfs_pipeline():
         """
@@ -873,52 +913,11 @@ def create_app():
             if not scraper.exists():
                 return jsonify({"status": "error", "message": "Net profit scraper not found"}), 404
 
-            def _run_net_profit_task():
-                try:
-                    logger.info("[NetProfit] Starting scraper...")
-                    # Clear any stale stop flag
-                    try:
-                        net_stop_flag = project_root / RUNTIME_STOP_NET_FLAG
-                        if net_stop_flag.exists():
-                            net_stop_flag.unlink()
-                    except Exception:
-                        pass
-                    # Initialize progress file as running
-                    try:
-                        net_progress = project_root / RUNTIME_NET_PROGRESS_JSON
-                        net_progress.parent.mkdir(parents=True, exist_ok=True)
-                        with open(net_progress, 'w', encoding='utf-8') as f:
-                            json.dump({"status": "running", "processed": 0}, f)
-                    except Exception:
-                        pass
-                    env = os.environ.copy()
-                    env.setdefault('STOP_FLAG_FILE', str(project_root / RUNTIME_STOP_NET_FLAG))
-                    env.setdefault('PROGRESS_FILE', str(project_root / RUNTIME_NET_PROGRESS_JSON))
-                    env.setdefault('PLAYWRIGHT_HEADLESS', '1')
-                    if sys.platform == 'darwin':
-                        env.setdefault('PLAYWRIGHT_CHANNEL', 'chrome')
-                    with _PLAYWRIGHT_SCRAPER_LOCK:
-                        subprocess.run([sys.executable, str(scraper)], cwd=str(project_root), check=True, text=True, env=env)
-                except subprocess.CalledProcessError as e:
-                    logger.error(f"[NetProfit] Scraper failed: {e}")
-                    return
-                try:
-                    logger.info("[NetProfit] Recalculating flows after net profit update...")
-                    calc = project_root / SCRIPT_CALCULATE_REINVESTED
-                    subprocess.run([sys.executable, str(calc)], cwd=str(project_root), check=True, text=True)
-                    logger.info("[NetProfit] ✅ Completed")
-                except subprocess.CalledProcessError as e:
-                    logger.error(f"[NetProfit] Recalculation failed: {e}")
-                finally:
-                    # Ensure stop flag cleared at end
-                    try:
-                        net_stop_flag = project_root / RUNTIME_STOP_NET_FLAG
-                        if net_stop_flag.exists():
-                            net_stop_flag.unlink()
-                    except Exception:
-                        pass
-
-            threading.Thread(target=_run_net_profit_task, daemon=True).start()
+            threading.Thread(
+                target=_run_net_profit_background_task,
+                args=(project_root, scraper),
+                daemon=True,
+            ).start()
             return jsonify({"status": "accepted", "message": "Net profit scraping started in background"}), 202
         except Exception as e:
             logger.error(f"Failed to start net profit scraper: {e}")

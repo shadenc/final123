@@ -15,6 +15,51 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Arabic placeholder for empty / missing cells (must match dashboard expectations)
+EXCEL_EMPTY_PLACEHOLDER_AR = "لايوجد"
+
+
+def _is_effectively_empty_cell(value) -> bool:
+    if not value:
+        return True
+    s = str(value).strip()
+    if not s:
+        return True
+    low = s.lower()
+    return low in ("", "null", "undefined", "nan", EXCEL_EMPTY_PLACEHOLDER_AR)
+
+
+def _format_dashboard_cell(value) -> str:
+    """Format one cell for export; mirrors previous inline logic."""
+    if _is_effectively_empty_cell(value):
+        return EXCEL_EMPTY_PLACEHOLDER_AR
+    try:
+        num_value = float(str(value).replace(",", ""))
+        if num_value != 0:
+            return f"{num_value:,.0f}"
+        return "0"
+    except (ValueError, TypeError):
+        return str(value)
+
+
+def _rtl_row_values(row, headers: list) -> list:
+    """One data row, values ordered to match reversed headers (RTL)."""
+    return [_format_dashboard_cell(row.get(header, "")) for header in headers]
+
+
+def _autosize_worksheet_columns(ws) -> None:
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if cell.value and len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except (TypeError, ValueError, AttributeError):
+                pass
+        ws.column_dimensions[column_letter].width = min(max_length + 2, 50)
+
+
 class ExcelExporter:
     def __init__(self, output_dir: str = "output/excel"):
         # Use absolute path for output directory
@@ -40,70 +85,33 @@ class ExcelExporter:
         Export only the dashboard table data in a simple format
         """
         try:
-            # Create workbook
             wb = openpyxl.Workbook()
             ws = wb.active
-            ws.title = "Financial Data"  # Shorter title to avoid Excel issues
-            
-            # Get headers dynamically from the data columns and reverse for RTL layout
-            headers = list(data.columns)[::-1]  # Reverse the order for RTL layout
-            
-            # Add headers
+            ws.title = "Financial Data"
+
+            headers = list(data.columns)[::-1]
+
             for col, header in enumerate(headers, 1):
                 cell = ws.cell(row=1, column=col, value=header)
                 cell.font = self.header_font
                 cell.fill = self.header_fill
-                cell.alignment = self.right_alignment  # Right-align headers for RTL
+                cell.alignment = self.right_alignment
                 cell.border = self.border
-            
-            # Add data rows
+
             for row_idx, (_, row) in enumerate(data.iterrows(), 2):
-                row_data = []
-                for col, header in enumerate(headers, 1):
-                    value = row.get(header, '')
-                    
-                    # Clean and format numeric values
-                    if value and str(value).strip() and str(value).lower() not in ['', 'null', 'undefined', 'nan', 'لايوجد']:
-                        try:
-                            # Convert to float and format if it's a number
-                            num_value = float(str(value).replace(',', ''))
-                            if num_value != 0:  # Only format non-zero numbers
-                                formatted_value = f"{num_value:,.0f}"
-                            else:
-                                formatted_value = '0'
-                        except (ValueError, TypeError):
-                            formatted_value = str(value)
-                    else:
-                        formatted_value = 'لايوجد'
-                    
-                    row_data.append(formatted_value)
-                
-                # Add row data with reversed order for RTL layout
+                row_data = _rtl_row_values(row, headers)
                 for col, value in enumerate(row_data, 1):
                     cell = ws.cell(row=row_idx, column=col, value=value)
                     cell.font = self.data_font
                     cell.border = self.border
                     cell.alignment = self.right_alignment
-            
-            # Auto-adjust column widths
-            for column in ws.columns:
-                max_length = 0
-                column_letter = column[0].column_letter
-                for cell in column:
-                    try:
-                        if cell.value and len(str(cell.value)) > max_length:
-                            max_length = len(str(cell.value))
-                    except (TypeError, ValueError, AttributeError):
-                        pass
-                adjusted_width = min(max_length + 2, 50)
-                ws.column_dimensions[column_letter].width = adjusted_width
-            
-            # Generate filename
+
+            _autosize_worksheet_columns(ws)
+
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"financial_analysis_{timestamp}.xlsx"
             output_path = self.output_dir / filename
-            
-            # Save workbook with error handling
+
             try:
                 wb.save(str(output_path))
                 logger.info(f"Dashboard table exported: {output_path}")
@@ -111,7 +119,7 @@ class ExcelExporter:
             except Exception as save_error:
                 logger.error(f"Error saving Excel file: {save_error}")
                 return None
-            
+
         except Exception as e:
             logger.error(f"Error exporting dashboard table: {e}")
             return None
