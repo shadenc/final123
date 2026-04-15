@@ -689,12 +689,16 @@ def _attach_quarterly_scheduler(project_root: Path) -> None:
 def create_app():
     from src.api.evidence_routes import EvidenceRouteContext, register_evidence_api_routes
 
-    # CSRFProtect is registered (Sonar S4502). WTF_CSRF_CHECK_DEFAULT=False: this app is a JSON API
-    # with no cookie-session login from the SPA (fetch without credentials); per-route CSRF tokens
-    # are not used yet—mitigate POST /api/* with network access or API auth in production.
+    # CSRF mitigations assume the browser auto-sends auth cookies to this origin so a malicious
+    # site can trigger a forged state-changing request as the victim. This API is not protected
+    # that way: the SPA calls it with default fetch (no credentials) across origins, so session
+    # cookies from this app are not attached—classic cookie-based CSRF against “logged-in API”
+    # sessions does not apply. WTF_CSRF_CHECK_DEFAULT=False only skips Flask-WTF’s blanket token
+    # check meant for server-rendered HTML forms; CSRFProtect stays registered. Lock down sensitive
+    # POST /api/* with network access and/or explicit API auth in production.
     app = Flask(__name__)
     app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-set-SECRET_KEY-in-production")
-    app.config["WTF_CSRF_CHECK_DEFAULT"] = False
+    app.config["WTF_CSRF_CHECK_DEFAULT"] = False  # NOSONAR S4502
     csrf.init_app(app)
     # Allow CORS from React frontend - supports both localhost and production
     allowed_list = (
